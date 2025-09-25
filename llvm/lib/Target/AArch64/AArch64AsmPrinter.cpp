@@ -199,6 +199,8 @@ public:
     bool AddrDiscIsKilled;
   };
 
+  void emitPtrauthAddendForResign(int64_t Addend);
+
   // Emit the sequence for AUT or AUTPAC. Addend if AUTRELLOADPAC
   void emitPtrauthAuthResign(Register Pointer, Register Scratch,
                              PtrAuthSchema AuthSchema,
@@ -2235,22 +2237,9 @@ AArch64AsmPrinter::PtrAuthSchema::PtrAuthSchema(
     : Key(Key), IntDisc(IntDisc), AddrDisc(AddrDiscOp.getReg()),
       AddrDiscIsKilled(AddrDiscOp.isKill()) {}
 
-void AArch64AsmPrinter::emitPtrauthAuthResign(
-    Register Pointer, Register Scratch, PtrAuthSchema AuthSchema,
-    std::optional<PtrAuthSchema> SignSchema, std::optional<uint64_t> OptAddend,
-    Value *DS) {
-  const bool IsResign = SignSchema.has_value();
-  const bool HasLoad = OptAddend.has_value();
-  // We expand AUT/AUTPAC into a sequence of the form
-  //
-  //      ; authenticate x16
-  //      ; check pointer in x16
-  //    Lsuccess:
-  //      ; sign x16 (if AUTPAC)
-  //    Lend:   ; if not trapping on failure
-  //
-  // with the checking sequence chosen depending on whether/how we should check
-  // the pointer and whether we should trap on failure.
+static std::pair<bool, bool> getCheckAndTrapMode(const MachineFunction *MF,
+                                                 bool IsResign) {
+  const AArch64Subtarget &STI = MF->getSubtarget<AArch64Subtarget>();
 
   // By default, auth/resign sequences check for auth failures.
   bool ShouldCheck = true;
@@ -2259,7 +2248,7 @@ void AArch64AsmPrinter::emitPtrauthAuthResign(
 
   // On an FPAC CPU, you get traps whether you want them or not: there's
   // no point in emitting checks or traps.
-  if (STI->hasFPAC())
+  if (STI.hasFPAC())
     ShouldCheck = ShouldTrap = false;
 
   // However, command-line flags can override this, for experimentation.
@@ -2278,107 +2267,143 @@ void AArch64AsmPrinter::emitPtrauthAuthResign(
     break;
   }
 
-  // Compute aut discriminator
-  Register AUTDiscReg =
-      emitPtrauthDiscriminator(AuthSchema.IntDisc, AuthSchema.AddrDisc, Scratch,
-                               AuthSchema.AddrDiscIsKilled);
+  // Checked-but-not-trapping mode ("poison") only applies to resigning,
+  // replace with "unchecked" for standalone AUT.
+  if (!IsResign && ShouldCheck && !ShouldTrap)
+    ShouldCheck = ShouldTrap = false;
+
+  return std::make_pair(ShouldCheck, ShouldTrap);
+}
+
+void AArch64AsmPrinter::emitPtrauthAddendForResign(int64_t Addend) {
+  // incoming rawpointer in X16, X17 is not live at this point.
+  //   LDSRWpre x17, x16, simm9  ; note: x16+simm9 used later.
+  if (isInt<9>(Addend)) {
+    EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWpre)
+                                     .addReg(AArch64::X16)
+                                     .addReg(AArch64::X17)
+                                     .addReg(AArch64::X16)
+                                     .addImm(/*simm9:*/ Addend));
+  } else {
+    //   x16 = x16 + Addend computation has 2 variants
+    if (isUInt<24>(Addend)) {
+      // variant 1: add x16, x16, Addend >> shift12 ls shift12
+      // This can take upto 2 instructions.
+      for (int BitPos = 0; BitPos != 24 && (Addend >> BitPos); BitPos += 12) {
+        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXri)
+                                         .addReg(AArch64::X16)
+                                         .addReg(AArch64::X16)
+                                         .addImm((Addend >> BitPos) & 0xfff)
+                                         .addImm(AArch64_AM::getShifterImm(
+                                             AArch64_AM::LSL, BitPos)));
+      }
+    } else {
+      // variant 2: accumulate constant in X17 16 bits at a time, and add to
+      // X16 This can take 2-5 instructions.
+      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVZXi)
+                                       .addReg(AArch64::X17)
+                                       .addImm(Addend & 0xffff)
+                                       .addImm(AArch64_AM::getShifterImm(
+                                           AArch64_AM::LSL, 0)));
+
+      for (int Offset = 16; Offset < 64; Offset += 16) {
+        uint16_t Fragment = static_cast<uint16_t>(Addend >> Offset);
+        if (!Fragment)
+          continue;
+        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVKXi)
+                                         .addReg(AArch64::X17)
+                                         .addReg(AArch64::X17)
+                                         .addImm(Fragment)
+                                         .addImm(/*shift:*/ Offset));
+      }
+      // addx x16, x16, x17
+      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
+                                       .addReg(AArch64::X16)
+                                       .addReg(AArch64::X16)
+                                       .addReg(AArch64::X17)
+                                       .addImm(0));
+    }
+    // ldrsw x17,x16(0)
+    EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWui)
+                                     .addReg(AArch64::X17)
+                                     .addReg(AArch64::X16)
+                                     .addImm(0));
+  }
+  // addx x16, x16, x17
+  EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
+                                   .addReg(AArch64::X16)
+                                   .addReg(AArch64::X16)
+                                   .addReg(AArch64::X17)
+                                   .addImm(0));
+}
+
+// We expand AUTx16x17/AUTxMxN into a sequence of the form
+//
+//      ; authenticate Pointer
+//      ; check that Pointer is valid (optional, traps on failure)
+//
+// We expand AUTPAC into a sequence of the form
+//
+//      ; authenticate Pointer
+//      ; check that Pointer is valid (optional, traps on failure)
+//      ; sign Pointer
+//
+// or
+//
+//      ; authenticate Pointer
+//      ; check that Pointer is valid (skips re-sign on failure)
+//      ; sign Pointer
+//    Lon_failure:
+//
+void AArch64AsmPrinter::emitPtrauthAuthResign(
+    Register Pointer, Register Scratch, PtrAuthSchema AuthSchema,
+    std::optional<PtrAuthSchema> SignSchema, std::optional<uint64_t> OptAddend,
+    Value *DS) {
+  const bool IsResign = SignSchema.has_value();
+
+  const auto [ShouldCheck, ShouldTrap] = getCheckAndTrapMode(MF, IsResign);
+  const bool ShouldSkipSignOnAuthFailure = ShouldCheck && !ShouldTrap;
+  assert((ShouldCheck || !ShouldTrap) && "ShouldTrap implies ShouldCheck");
+
+  // It is hardly meaningful to authenticate or sign a pointer using its own
+  // value, thus we only have to take care not to early-clobber
+  // AuthSchema.AddrDisc that is aliased with SignSchema->AddrDisc.
+  assert(Pointer != AuthSchema.AddrDisc);
+  assert(!SignSchema || Pointer != SignSchema->AddrDisc);
+  bool IsResignWithAliasedAddrDiscs =
+      IsResign && AuthSchema.AddrDisc == SignSchema->AddrDisc;
+  bool MayReuseAUTAddrDisc =
+      !IsResignWithAliasedAddrDiscs && AuthSchema.AddrDiscIsKilled;
+  Register AUTDiscReg = emitPtrauthDiscriminator(
+      AuthSchema.IntDisc, AuthSchema.AddrDisc, Scratch, MayReuseAUTAddrDisc);
 
   if (!emitDeactivationSymbolRelocation(DS))
     emitAUT(AuthSchema.Key, Pointer, AUTDiscReg);
 
-  // Unchecked or checked-but-non-trapping AUT is just an "AUT": we're done.
-  if (!IsResign && (!ShouldCheck || !ShouldTrap))
-    return;
+  MCSymbol *OnFailure =
+      ShouldSkipSignOnAuthFailure ? createTempSymbol("resign_end_") : nullptr;
 
-  MCSymbol *EndSym = nullptr;
-
-  if (ShouldCheck) {
-    if (IsResign && !ShouldTrap)
-      EndSym = createTempSymbol("resign_end_");
-
+  if (ShouldCheck)
     emitPtrauthCheckAuthenticatedValue(Pointer, Scratch, AuthSchema.Key,
                                        AArch64PAuth::AuthCheckMethod::XPAC,
-                                       EndSym);
+                                       OnFailure);
+
+  if (!IsResign) {
+    assert(!OnFailure && "Poison mode only applies to resigning");
+    return;
   }
 
-  // We already emitted unchecked and checked-but-non-trapping AUTs.
-  // That left us with trapping AUTs, and AUTPA/AUTRELLOADPACs.
-  // Trapping AUTs don't need PAC: we're done.
-  if (!IsResign)
-    return;
+  if (OptAddend.has_value())
+    emitPtrauthAddendForResign(*OptAddend);
 
-  if (HasLoad) {
-    int64_t Addend = *OptAddend;
-    // incoming rawpointer in X16, X17 is not live at this point.
-    //   LDSRWpre x17, x16, simm9  ; note: x16+simm9 used later.
-    if (isInt<9>(Addend)) {
-      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWpre)
-                                       .addReg(AArch64::X16)
-                                       .addReg(AArch64::X17)
-                                       .addReg(AArch64::X16)
-                                       .addImm(/*simm9:*/ Addend));
-    } else {
-      //   x16 = x16 + Addend computation has 2 variants
-      if (isUInt<24>(Addend)) {
-        // variant 1: add x16, x16, Addend >> shift12 ls shift12
-        // This can take upto 2 instructions.
-        for (int BitPos = 0; BitPos != 24 && (Addend >> BitPos); BitPos += 12) {
-          EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXri)
-                                           .addReg(AArch64::X16)
-                                           .addReg(AArch64::X16)
-                                           .addImm((Addend >> BitPos) & 0xfff)
-                                           .addImm(AArch64_AM::getShifterImm(
-                                               AArch64_AM::LSL, BitPos)));
-        }
-      } else {
-        // variant 2: accumulate constant in X17 16 bits at a time, and add to
-        // X16 This can take 2-5 instructions.
-        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVZXi)
-                                         .addReg(AArch64::X17)
-                                         .addImm(Addend & 0xffff)
-                                         .addImm(AArch64_AM::getShifterImm(
-                                             AArch64_AM::LSL, 0)));
+  Register PACDiscReg =
+      emitPtrauthDiscriminator(SignSchema->IntDisc, SignSchema->AddrDisc,
+                               Scratch, SignSchema->AddrDiscIsKilled);
 
-        for (int Offset = 16; Offset < 64; Offset += 16) {
-          uint16_t Fragment = static_cast<uint16_t>(Addend >> Offset);
-          if (!Fragment)
-            continue;
-          EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVKXi)
-                                           .addReg(AArch64::X17)
-                                           .addReg(AArch64::X17)
-                                           .addImm(Fragment)
-                                           .addImm(/*shift:*/ Offset));
-        }
-        // addx x16, x16, x17
-        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
-                                         .addReg(AArch64::X16)
-                                         .addReg(AArch64::X16)
-                                         .addReg(AArch64::X17)
-                                         .addImm(0));
-      }
-      // ldrsw x17,x16(0)
-      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWui)
-                                       .addReg(AArch64::X17)
-                                       .addReg(AArch64::X16)
-                                       .addImm(0));
-    }
-    // addx x16, x16, x17
-    EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
-                                     .addReg(AArch64::X16)
-                                     .addReg(AArch64::X16)
-                                     .addReg(AArch64::X17)
-                                     .addImm(0));
-
-  } /* HasLoad == true */
-
-  // Compute pac discriminator into x17
-  Register PACDiscReg = emitPtrauthDiscriminator(SignSchema->IntDisc,
-                                                 SignSchema->AddrDisc, Scratch);
   emitPAC(SignSchema->Key, Pointer, PACDiscReg);
 
-  //  Lend:
-  if (EndSym)
-    OutStreamer->emitLabel(EndSym);
+  if (OnFailure)
+    OutStreamer->emitLabel(OnFailure);
 }
 
 void AArch64AsmPrinter::emitPtrauthSign(const MachineInstr *MI) {
