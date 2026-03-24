@@ -3254,7 +3254,6 @@ static mlir::omp::TaskloopContextOp genStandaloneTaskloop(
     lower::pft::Evaluation &eval, mlir::Location loc,
     const ConstructQueue &queue, ConstructQueue::const_iterator item) {
   mlir::omp::TaskloopContextOperands taskloopClauseOps;
-  mlir::omp::TaskloopOperands wrapperClauseOps;
   llvm::SmallVector<const semantics::Symbol *> reductionSyms;
   llvm::SmallVector<const semantics::Symbol *> inReductionSyms;
 
@@ -3286,6 +3285,7 @@ static mlir::omp::TaskloopContextOp genStandaloneTaskloop(
 
   mlir::OpBuilder::InsertionGuard guard(firOpBuilder);
   firOpBuilder.setInsertionPointToStart(&taskLoopContextOp.getRegion().front());
+  mlir::omp::TaskloopOperands wrapperClauseOps;
   auto taskLoopOp = genWrapperOp<mlir::omp::TaskloopOp>(
       converter, loc, wrapperClauseOps, taskloopArgs);
 
