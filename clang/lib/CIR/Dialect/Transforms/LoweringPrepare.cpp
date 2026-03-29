@@ -29,11 +29,8 @@
 #include "clang/CIR/MissingFeatures.h"
 #include "llvm/ADT/StringRef.h"
 #include "llvm/ADT/TypeSwitch.h"
-<<<<<<< HEAD
-#include "llvm/Support/MemoryBuffer.h"
-=======
 #include "llvm/IR/Instructions.h"
->>>>>>> fff0ddb60480 ([CIR][CUDA] Handle CUDA module constructor and destructor emission.)
+#include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/Path.h"
 
 #include <memory>
@@ -1866,7 +1863,8 @@ void LoweringPreparePass::buildCUDAModuleCtor() {
                                FuncType::get({voidPtrPtrTy}, voidTy));
       builder.createCallOp(loc, endFunc, gpuBinaryHandle);
     }
-  }
+  } else
+    llvm_unreachable("GPU RDC NYI");
 
   // Create destructor and register it with atexit() the way NVCC does it. Doing
   // it during regular destructor phase worked in CUDA before 9.2 but results in
