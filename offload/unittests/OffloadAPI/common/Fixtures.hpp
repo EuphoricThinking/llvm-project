@@ -238,6 +238,12 @@ struct OffloadQueueTest : OffloadDeviceTest {
   ol_queue_handle_t Queue = nullptr;
 };
 
+/*
+ooooo     o
+createEvent (e)
+oooo      o
+createEvent(e2)
+*/
 struct OffloadEventTest : OffloadQueueTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadQueueTest::SetUp());
