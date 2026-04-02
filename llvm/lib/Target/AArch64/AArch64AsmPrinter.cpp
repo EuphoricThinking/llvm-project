@@ -203,7 +203,8 @@ public:
     }
   };
 
-  void emitPtrauthAddendForResign(int64_t Addend);
+  void emitPtrauthAddendForResign(Register Pointer, Register Scratch,
+                                  int64_t Addend);
 
   // Emit the sequence for AUT or AUTPAC. Addend if AUTRELLOADPAC
   void emitPtrauthAuthResign(Register Pointer, Register Scratch,
@@ -2279,66 +2280,57 @@ static std::pair<bool, bool> getCheckAndTrapMode(const MachineFunction *MF,
   return std::make_pair(ShouldCheck, ShouldTrap);
 }
 
-void AArch64AsmPrinter::emitPtrauthAddendForResign(int64_t Addend) {
-  // incoming rawpointer in X16, X17 is not live at this point.
-  //   LDSRWpre x17, x16, simm9  ; note: x16+simm9 used later.
+void AArch64AsmPrinter::emitPtrauthAddendForResign(Register Pointer,
+                                                   Register Scratch,
+                                                   int64_t Addend) {
+  //   LDSRWpre Scratch, Pointer, simm9  ; note: Pointer+simm9 used later.
   if (isInt<9>(Addend)) {
-    EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWpre)
-                                     .addReg(AArch64::X16)
-                                     .addReg(AArch64::X17)
-                                     .addReg(AArch64::X16)
-                                     .addImm(/*simm9:*/ Addend));
+    EmitToStreamer(MCInstBuilder(AArch64::LDRSWpre)
+                       .addReg(Pointer)
+                       .addReg(Scratch)
+                       .addReg(Pointer)
+                       .addImm(/*simm9:*/ Addend));
   } else {
-    //   x16 = x16 + Addend computation has 2 variants
+    //   Pointer = Pointer + Addend computation has 2 variants
     if (isUInt<24>(Addend)) {
-      // variant 1: add x16, x16, Addend >> shift12 ls shift12
+      // variant 1: add Pointer, Pointer, Addend >> shift12 ls shift12
       // This can take upto 2 instructions.
       for (int BitPos = 0; BitPos != 24 && (Addend >> BitPos); BitPos += 12) {
-        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXri)
-                                         .addReg(AArch64::X16)
-                                         .addReg(AArch64::X16)
-                                         .addImm((Addend >> BitPos) & 0xfff)
-                                         .addImm(AArch64_AM::getShifterImm(
-                                             AArch64_AM::LSL, BitPos)));
+        EmitToStreamer(
+            MCInstBuilder(AArch64::ADDXri)
+                .addReg(Pointer)
+                .addReg(Pointer)
+                .addImm((Addend >> BitPos) & 0xfff)
+                .addImm(AArch64_AM::getShifterImm(AArch64_AM::LSL, BitPos)));
       }
     } else {
-      // variant 2: accumulate constant in X17 16 bits at a time, and add to
-      // X16 This can take 2-5 instructions.
-      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVZXi)
-                                       .addReg(AArch64::X17)
-                                       .addImm(Addend & 0xffff)
-                                       .addImm(AArch64_AM::getShifterImm(
-                                           AArch64_AM::LSL, 0)));
-
+      // variant 2: accumulate constant in Scratch 16 bits at a time,
+      // and add to Pointer. This can take 2-5 instructions.
+      emitMOVZ(Scratch, Addend & 0xffff, 0);
       for (int Offset = 16; Offset < 64; Offset += 16) {
-        uint16_t Fragment = static_cast<uint16_t>(Addend >> Offset);
-        if (!Fragment)
-          continue;
-        EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::MOVKXi)
-                                         .addReg(AArch64::X17)
-                                         .addReg(AArch64::X17)
-                                         .addImm(Fragment)
-                                         .addImm(/*shift:*/ Offset));
+        if (uint16_t Fragment = static_cast<uint16_t>(Addend >> Offset))
+          emitMOVK(Scratch, Fragment, Offset);
       }
-      // addx x16, x16, x17
-      EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
-                                       .addReg(AArch64::X16)
-                                       .addReg(AArch64::X16)
-                                       .addReg(AArch64::X17)
-                                       .addImm(0));
+
+      // addx Pointer, Pointer, Scratch
+      EmitToStreamer(MCInstBuilder(AArch64::ADDXrs)
+                         .addReg(Pointer)
+                         .addReg(Pointer)
+                         .addReg(Scratch)
+                         .addImm(0));
     }
-    // ldrsw x17,x16(0)
-    EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::LDRSWui)
-                                     .addReg(AArch64::X17)
-                                     .addReg(AArch64::X16)
-                                     .addImm(0));
+    // ldrsw Scratch,Pointer(0)
+    EmitToStreamer(MCInstBuilder(AArch64::LDRSWui)
+                       .addReg(Scratch)
+                       .addReg(Pointer)
+                       .addImm(0));
   }
-  // addx x16, x16, x17
-  EmitToStreamer(*OutStreamer, MCInstBuilder(AArch64::ADDXrs)
-                                   .addReg(AArch64::X16)
-                                   .addReg(AArch64::X16)
-                                   .addReg(AArch64::X17)
-                                   .addImm(0));
+  // addx Pointer, Pointer, Scratch
+  EmitToStreamer(MCInstBuilder(AArch64::ADDXrs)
+                     .addReg(Pointer)
+                     .addReg(Pointer)
+                     .addReg(Scratch)
+                     .addImm(0));
 }
 
 // We expand AUTx16x17/AUTxMxN into a sequence of the form
@@ -2350,12 +2342,14 @@ void AArch64AsmPrinter::emitPtrauthAddendForResign(int64_t Addend) {
 //
 //      ; authenticate Pointer
 //      ; check that Pointer is valid (optional, traps on failure)
+//      ; load addend and add it to Pointer (if OptAddend)
 //      ; sign Pointer
 //
 // or
 //
 //      ; authenticate Pointer
 //      ; check that Pointer is valid (skips re-sign on failure)
+//      ; load addend and add it to Pointer (if OptAddend)
 //      ; sign Pointer
 //    Lon_failure:
 //
@@ -2396,7 +2390,7 @@ void AArch64AsmPrinter::emitPtrauthAuthResign(
   }
 
   if (OptAddend.has_value())
-    emitPtrauthAddendForResign(*OptAddend);
+    emitPtrauthAddendForResign(Pointer, Scratch, *OptAddend);
 
   Register PACDiscReg = emitPtrauthDiscriminator(
       SignSchema->IntDisc, SignSchema->AddrDisc, Scratch,
