@@ -194,10 +194,6 @@ static mlir::LLVM::CConv convertCallingConv(cir::CallingConv callingConv) {
     return LLVM::SPIR_KERNEL;
   case CIR::SpirFunction:
     return LLVM::SPIR_FUNC;
-  case CIR::OpenCLKernel:
-    assert(!cir::MissingFeatures::callConvOpenCLKernel());
-    llvm_unreachable(
-        "OpenCLKernel must be resolved to target-specific CC in CodeGen");
   case CIR::PTXKernel:
     return LLVM::PTX_Kernel;
   case CIR::AMDGPUKernel:
