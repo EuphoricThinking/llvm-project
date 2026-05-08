@@ -644,6 +644,13 @@ Error olMemAlloc_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
                             "failed to allocate non-overlapping memory");
 }
 
+Error olMemAllocWithProp_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
+                              size_t Size,
+                              const ol_mem_alloc_prop_t *Properties,
+                              void **AllocationOut) {
+  return Error::success();
+}
+
 Error olMemFree_impl(void *Address) {
   ol_device_handle_t Device;
   ol_alloc_type_t Type;
