@@ -588,8 +588,8 @@ TargetAllocTy convertOlToPluginAllocTy(ol_alloc_type_t Type) {
 }
 
 constexpr size_t MAX_ALLOC_TRIES = 50;
-Error olMemAlloc_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
-                      size_t Size, void **AllocationOut) {
+Error olMemAllocImplHelper(ol_device_handle_t Device, ol_alloc_type_t Type,
+                      size_t Size, const ol_mem_alloc_prop_t *Properties, void **AllocationOut) {
   SmallVector<void *> Rejects;
 
   // Repeat the allocation up to a certain amount of times. If it happens to
@@ -644,11 +644,16 @@ Error olMemAlloc_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
                             "failed to allocate non-overlapping memory");
 }
 
+Error olMemAlloc_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
+                      size_t Size, void **AllocationOut) {
+  return olMemAllocImplHelper(Device, Type, Size, NULL, AllocationOut);
+                      }
+
 Error olMemAllocWithProp_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
                               size_t Size,
                               const ol_mem_alloc_prop_t *Properties,
                               void **AllocationOut) {
-  return Error::success();
+  return olMemAllocImplHelper(Device, Type, Size, Properties, AllocationOut);
 }
 
 Error olMemFree_impl(void *Address) {
