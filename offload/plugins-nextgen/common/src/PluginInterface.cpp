@@ -964,7 +964,7 @@ Error GenericDeviceTy::getDeviceMemorySize(uint64_t &DSize) {
 }
 
 Expected<void *> GenericDeviceTy::dataAlloc(int64_t Size, void *HostPtr,
-                                            TargetAllocTy Kind) {
+                                            TargetAllocTy Kind, ) {
   void *Alloc = nullptr;
 
   if (RecordReplay && RecordReplay->isRecordingOrReplaying())

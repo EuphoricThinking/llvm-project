@@ -590,6 +590,9 @@ TargetAllocTy convertOlToPluginAllocTy(ol_alloc_type_t Type) {
 constexpr size_t MAX_ALLOC_TRIES = 50;
 Error olMemAllocImplHelper(ol_device_handle_t Device, ol_alloc_type_t Type,
                       size_t Size, const ol_mem_alloc_prop_t *Properties, void **AllocationOut) {
+  AllocPropertiesTy Props{};
+  Props.alignment = Properties->alignment;
+  
   SmallVector<void *> Rejects;
 
   // Repeat the allocation up to a certain amount of times. If it happens to
