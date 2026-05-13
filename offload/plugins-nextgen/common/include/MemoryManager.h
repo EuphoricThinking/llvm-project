@@ -186,7 +186,7 @@ class MemoryManagerTy {
   /// be because the device is OOM. In that case, it will free all unused
   /// memory and then try again.
   Expected<void *> allocateOrFreeAndAllocateOnDevice(size_t Size,
-                                                     void *HstPtr) {
+                                                     void *HstPtr, size_t Alignment) {
     auto TgtPtrOrErr = allocateOnDevice(Size, HstPtr);
     if (!TgtPtrOrErr)
       return TgtPtrOrErr.takeError();
@@ -231,7 +231,7 @@ public:
 
   /// Allocate memory of size \p Size from target device. \p HstPtr is used to
   /// assist the allocation.
-  Expected<void *> allocate(size_t Size, void *HstPtr) {
+  Expected<void *> allocate(size_t Size, void *HstPtr, size_t Alignment) {
     // If the size is zero, we will not bother the target device. Just return
     // nullptr directly.
     if (Size == 0)
@@ -245,7 +245,7 @@ public:
     if (Size > SizeThreshold) {
       ODBG(OLDT_Alloc) << Size << " is greater than the threshold "
                        << SizeThreshold << ". Allocate it directly from device";
-      auto TgtPtrOrErr = allocateOrFreeAndAllocateOnDevice(Size, HstPtr);
+      auto TgtPtrOrErr = allocateOrFreeAndAllocateOnDevice(Size, HstPtr, Alignment);
       if (!TgtPtrOrErr)
         return TgtPtrOrErr.takeError();
 
@@ -281,7 +281,7 @@ public:
       ODBG(OLDT_Alloc) << "Cannot find a node in the FreeLists. "
                        << "Allocate on device.";
       // Allocate one on device
-      auto TgtPtrOrErr = allocateOrFreeAndAllocateOnDevice(Size, HstPtr);
+      auto TgtPtrOrErr = allocateOrFreeAndAllocateOnDevice(Size, HstPtr, Alignment);
       if (!TgtPtrOrErr)
         return TgtPtrOrErr.takeError();
 
