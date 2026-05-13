@@ -589,10 +589,7 @@ TargetAllocTy convertOlToPluginAllocTy(ol_alloc_type_t Type) {
 
 constexpr size_t MAX_ALLOC_TRIES = 50;
 Error olMemAllocImplHelper(ol_device_handle_t Device, ol_alloc_type_t Type,
-                      size_t Size, const ol_mem_alloc_prop_t *Properties, void **AllocationOut) {
-  AllocPropertiesTy Props{};
-  Props.alignment = Properties->alignment;
-  
+                      size_t Size, size_t Alignment, void **AllocationOut) {
   SmallVector<void *> Rejects;
 
   // Repeat the allocation up to a certain amount of times. If it happens to
@@ -649,14 +646,14 @@ Error olMemAllocImplHelper(ol_device_handle_t Device, ol_alloc_type_t Type,
 
 Error olMemAlloc_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
                       size_t Size, void **AllocationOut) {
-  return olMemAllocImplHelper(Device, Type, Size, NULL, AllocationOut);
+  return olMemAllocImplHelper(Device, Type, Size, 0, AllocationOut);
                       }
 
-Error olMemAllocWithProp_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
+Error olMemAllocAligned_impl(ol_device_handle_t Device, ol_alloc_type_t Type,
                               size_t Size,
-                              const ol_mem_alloc_prop_t *Properties,
+                              size_t Alignment,
                               void **AllocationOut) {
-  return olMemAllocImplHelper(Device, Type, Size, Properties, AllocationOut);
+  return olMemAllocImplHelper(Device, Type, Size, Alignment, AllocationOut);
 }
 
 Error olMemFree_impl(void *Address) {

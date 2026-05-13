@@ -149,11 +149,6 @@ struct KernelExtraArgsTy {
   KernelReplayOutcomeTy *ReplayOutcome = nullptr;
 };
 
-/// Properties for memory allocation with olMemAllocWithProp.
-struct AllocPropertiesTy {
-  size_t alignment; /// Allocation alignment
-}
-
 }
 
 #endif // OMPTARGET_SHARED_API_TYPES_H

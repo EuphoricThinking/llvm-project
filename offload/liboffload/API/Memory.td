@@ -33,13 +33,6 @@ def ol_memory_register_flag_t : Enum {
   ];
 }
 
-def ol_mem_alloc_prop_t : Struct {
-  let desc = "Properties for memory allocation with olMemAllocWithProp.";
-  let members = [StructMember<"size_t", "alignment",
-                              "Allocation alignment">,
-                              ];
-}
-
 def olMemAlloc : Function {
   let desc = "Creates a memory allocation on the specified device.";
   let details = [
@@ -58,7 +51,7 @@ def olMemAlloc : Function {
   ];
 }
 
-def olMemAllocWithProp : Function {
+def olMemAllocAligned : Function {
   let desc = "Creates a memory allocation on the specified device with specified properties.";
   let details = [
       "All allocations through olMemAllocWithProp regardless of source share a single virtual address range. There is no risk of multiple devices returning equal pointers to different memory."
@@ -67,8 +60,8 @@ def olMemAllocWithProp : Function {
     Param<"ol_device_handle_t", "Device", "handle of the device to allocate on", PARAM_IN>,
     Param<"ol_alloc_type_t", "Type", "type of the allocation", PARAM_IN>,
     Param<"size_t", "Size", "size of the allocation in bytes", PARAM_IN>,
-    Param<"const ol_mem_alloc_prop_t*", "Properties",
-               "Pointer to the struct containing allocation properties",
+    Param<"size_t", "Alignment",
+               "alignment of the allocation im bytes",
                PARAM_IN>,
     Param<"void**", "AllocationOut", "output for the allocated pointer", PARAM_OUT>
   ];
