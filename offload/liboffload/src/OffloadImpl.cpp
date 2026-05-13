@@ -597,7 +597,7 @@ Error olMemAllocImplHelper(ol_device_handle_t Device, ol_alloc_type_t Type,
   // and try again.
   for (size_t Count = 0; Count < MAX_ALLOC_TRIES; Count++) {
     auto NewAlloc = Device->Device->dataAlloc(Size, nullptr,
-                                              convertOlToPluginAllocTy(Type));
+                                              convertOlToPluginAllocTy(Type), Alignment);
     if (!NewAlloc)
       return NewAlloc.takeError();
 

@@ -126,7 +126,7 @@ GenericKernelTy::getKernelLaunchEnvironment(
 
   auto AllocOrErr = GenericDevice.dataAlloc(sizeof(KernelLaunchEnvironmentTy),
                                             /*HostPtr=*/nullptr,
-                                            TargetAllocTy::TARGET_ALLOC_DEVICE);
+                                            TargetAllocTy::TARGET_ALLOC_DEVICE, 0);
   if (!AllocOrErr)
     return AllocOrErr.takeError();
 
@@ -148,7 +148,7 @@ GenericKernelTy::getKernelLaunchEnvironment(
     auto AllocOrErr = GenericDevice.dataAlloc(
         KernelEnvironment.Configuration.ReductionDataSize *
             KernelEnvironment.Configuration.ReductionBufferLength,
-        /*HostPtr=*/nullptr, TargetAllocTy::TARGET_ALLOC_DEVICE);
+        /*HostPtr=*/nullptr, TargetAllocTy::TARGET_ALLOC_DEVICE, 0);
     if (!AllocOrErr)
       return AllocOrErr.takeError();
     LocalKLE.ReductionBuffer = *AllocOrErr;
@@ -226,7 +226,7 @@ GenericKernelTy::prepareBlockMemory(GenericDeviceTy &GenericDevice,
       // Get global memory as fallback.
       auto AllocOrErr = GenericDevice.dataAlloc(
           NumBlocks * DynBlockMemSize,
-          /*HostPtr=*/nullptr, TargetAllocTy::TARGET_ALLOC_DEVICE);
+          /*HostPtr=*/nullptr, TargetAllocTy::TARGET_ALLOC_DEVICE, 0);
       if (!AllocOrErr)
         return AllocOrErr.takeError();
       DynFallbackPtr = *AllocOrErr;
@@ -964,9 +964,10 @@ Error GenericDeviceTy::getDeviceMemorySize(uint64_t &DSize) {
 }
 
 Expected<void *> GenericDeviceTy::dataAlloc(int64_t Size, void *HostPtr,
-                                            TargetAllocTy Kind) {
+                                            TargetAllocTy Kind, size_t Alignment) {
   void *Alloc = nullptr;
 
+  // TODO Check alignment
   if (RecordReplay && RecordReplay->isRecordingOrReplaying())
     return RecordReplay->allocate(Size);
 
@@ -1523,7 +1524,7 @@ int32_t GenericPluginTy::load_binary(int32_t DeviceId,
 void *GenericPluginTy::data_alloc(int32_t DeviceId, int64_t Size, void *HostPtr,
                                   int32_t Kind) {
   auto AllocOrErr =
-      getDevice(DeviceId).dataAlloc(Size, HostPtr, (TargetAllocTy)Kind);
+      getDevice(DeviceId).dataAlloc(Size, HostPtr, (TargetAllocTy)Kind, 0);
   if (!AllocOrErr) {
     auto Err = AllocOrErr.takeError();
     REPORT() << "Failure to allocate device memory: "
