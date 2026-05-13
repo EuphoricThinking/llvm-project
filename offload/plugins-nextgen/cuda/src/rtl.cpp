@@ -580,7 +580,7 @@ struct CUDADeviceTy : public GenericDeviceTy {
   }
 
   /// Allocate memory on the device or related to the device.
-  Expected<void *> allocate(size_t Size, void *, TargetAllocTy Kind, size_t Alignment) override {
+  Expected<void *> allocate(size_t Size, void *, TargetAllocTy Kind, size_t Alignment = 0) override {
     if (Size == 0)
       return nullptr;
 
