@@ -143,7 +143,7 @@ class MemoryManagerTy {
   size_t SizeThreshold = 1U << 13;
 
   /// Request memory from target device
-  Expected<void *> allocateOnDevice(size_t Size, void *HstPtr) const {
+  Expected<void *> allocateOnDevice(size_t Size, void *HstPtr, size_t Alignment) const {
     return DeviceAllocator.allocate(Size, HstPtr, TARGET_ALLOC_DEVICE);
   }
 
@@ -153,7 +153,7 @@ class MemoryManagerTy {
   /// This function is called when it tries to allocate memory on device but the
   /// device returns out of memory. It will first free all memory in the
   /// FreeList and try to allocate again.
-  Expected<void *> freeAndAllocate(size_t Size, void *HstPtr) {
+  Expected<void *> freeAndAllocate(size_t Size, void *HstPtr, size_t Alignment) {
     std::vector<void *> RemoveList;
 
     // Deallocate all memory in FreeList
@@ -178,7 +178,7 @@ class MemoryManagerTy {
     }
 
     // Try allocate memory again
-    return allocateOnDevice(Size, HstPtr);
+    return allocateOnDevice(Size, HstPtr, Alignment);
   }
 
   /// The goal is to allocate memory on the device. It first tries to
@@ -187,7 +187,7 @@ class MemoryManagerTy {
   /// memory and then try again.
   Expected<void *> allocateOrFreeAndAllocateOnDevice(size_t Size,
                                                      void *HstPtr, size_t Alignment) {
-    auto TgtPtrOrErr = allocateOnDevice(Size, HstPtr);
+    auto TgtPtrOrErr = allocateOnDevice(Size, HstPtr, Alignment);
     if (!TgtPtrOrErr)
       return TgtPtrOrErr.takeError();
 
@@ -197,7 +197,7 @@ class MemoryManagerTy {
     if (TgtPtr == nullptr) {
       ODBG(OLDT_Alloc) << "Failed to get memory on device. Free all memory "
                        << "in FreeLists and try again.";
-      TgtPtrOrErr = freeAndAllocate(Size, HstPtr);
+      TgtPtrOrErr = freeAndAllocate(Size, HstPtr, Alignment);
       if (!TgtPtrOrErr)
         return TgtPtrOrErr.takeError();
       TgtPtr = *TgtPtrOrErr;
