@@ -467,7 +467,7 @@ private:
   /// Allocation callback that will be called once the memory manager does not
   /// have more previously allocated buffers.
   Expected<void *> allocate(size_t Size, void *HstPtr,
-                            TargetAllocTy Kind) override;
+                            TargetAllocTy Kind, size_t Alignment) override;
 
   /// Deallocation callback that will be called by the memory manager.
   Error free(void *TgtPtr, TargetAllocTy Kind) override {
@@ -4279,7 +4279,7 @@ static Error Plugin::check(int32_t Code, const char *ErrFmt, ArgsTy... Args) {
 }
 
 Expected<void *> AMDGPUMemoryManagerTy::allocate(size_t Size, void *HstPtr,
-                                                 TargetAllocTy Kind) {
+                                                 TargetAllocTy Kind, size_t Alignment) {
   // Allocate memory from the pool.
   void *Ptr = nullptr;
   if (auto Err = MemoryPool->allocate(Size, &Ptr))

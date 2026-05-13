@@ -40,7 +40,7 @@ public:
   /// allocation.
   virtual Expected<void *>
   allocate(size_t Size, void *HstPtr,
-           TargetAllocTy Kind = TARGET_ALLOC_DEFAULT) = 0;
+           TargetAllocTy Kind = TARGET_ALLOC_DEFAULT, size_t Alignment = 0) = 0;
 
   /// Delete the pointer \p TgtPtr on the device
   virtual Error free(void *TgtPtr,
@@ -144,7 +144,7 @@ class MemoryManagerTy {
 
   /// Request memory from target device
   Expected<void *> allocateOnDevice(size_t Size, void *HstPtr, size_t Alignment) const {
-    return DeviceAllocator.allocate(Size, HstPtr, TARGET_ALLOC_DEVICE);
+    return DeviceAllocator.allocate(Size, HstPtr, TARGET_ALLOC_DEVICE, Alignment);
   }
 
   /// Deallocate data on device
