@@ -580,7 +580,7 @@ public:
                  int32_t ImageId) override;
   Error unloadBinaryImpl(DeviceImageTy *Image) override;
   Expected<void *> allocate(size_t Size, void *HstPtr,
-                            TargetAllocTy Kind) override;
+                            TargetAllocTy Kind, size_t Alignment) override;
   Error free(void *TgtPtr, TargetAllocTy Kind = TARGET_ALLOC_DEFAULT) override;
 
   /// This plugin does nothing to lock buffers. Do not return an error, just
