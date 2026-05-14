@@ -598,6 +598,11 @@ struct CUDADeviceTy : public GenericDeviceTy {
           return Plugin::error(ErrorCode::INVALID_ARGUMENT,
                                "wrong device page size");
       }
+
+      if (Alignment > Granularity) {
+          return Plugin::error(ErrorCode::INVALID_ARGUMENT,
+                               "unsupported alignment size");
+      }      
     }
 
     void *MemAlloc = nullptr;
