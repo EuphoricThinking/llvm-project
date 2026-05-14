@@ -148,7 +148,6 @@ struct KernelReplayOutcomeTy {
 struct KernelExtraArgsTy {
   KernelReplayOutcomeTy *ReplayOutcome = nullptr;
 };
-
 }
 
 #endif // OMPTARGET_SHARED_API_TYPES_H
