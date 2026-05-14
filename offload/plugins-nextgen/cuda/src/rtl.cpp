@@ -601,7 +601,7 @@ struct CUDADeviceTy : public GenericDeviceTy {
 
       if (Alignment > Granularity) {
           return Plugin::error(ErrorCode::INVALID_ARGUMENT,
-                               "unsupported alignment size");
+                               "too large alignment size");
       }      
     }
 
@@ -626,6 +626,12 @@ struct CUDADeviceTy : public GenericDeviceTy {
 
     if (auto Err = Plugin::check(Res, "error in cuMemAlloc[Host|Managed]: %s"))
       return std::move(Err);
+
+    if (Alignment > 0 && ((uintptr_t)(*MemAlloc) % Alignment) != 0) {
+      return Plugin::error(ErrorCode::INVALID_ARGUMENT,
+                               "unsupported alignment size");
+    } 
+
     return MemAlloc;
   }
 
