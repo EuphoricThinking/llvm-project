@@ -589,11 +589,10 @@ struct CUDADeviceTy : public GenericDeviceTy {
 
     if (Alignment > 0) {
       if (Granularity == 0) {
-          CUmemAllocationProp Prop = {};
-    Prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
-    Prop.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
-    Prop.location.id = DeviceId;
-
+        CUmemAllocationProp Prop = {};
+        Prop.type = CU_MEM_ALLOCATION_TYPE_PINNED;
+        Prop.location.type = CU_MEM_LOCATION_TYPE_DEVICE;
+        Prop.location.id = DeviceId;
 
         CUresult Res = cuMemGetAllocationGranularity(
             &Granularity, &Prop, CU_MEM_ALLOC_GRANULARITY_MINIMUM);
@@ -633,10 +632,10 @@ struct CUDADeviceTy : public GenericDeviceTy {
     if (auto Err = Plugin::check(Res, "error in cuMemAlloc[Host|Managed]: %s"))
       return std::move(Err);
 
-    if (Alignment > 0 && ((uintptr_t) MemAlloc % Alignment) != 0) {
+    if (Alignment > 0 && ((uintptr_t)MemAlloc % Alignment) != 0) {
       return Plugin::error(ErrorCode::INVALID_ARGUMENT,
                                "unsupported alignment size");
-    } 
+    }
 
     return MemAlloc;
   }
