@@ -587,6 +587,19 @@ struct CUDADeviceTy : public GenericDeviceTy {
     if (auto Err = setContext())
       return std::move(Err);
 
+    if (Alignment > 0) {
+      if (Granularity == 0) {
+         CUresult Res = cuMemGetAllocationGranularity(
+        &Granularity, &Prop, CU_MEM_ALLOC_GRANULARITY_MINIMUM);
+    if (auto Err =
+            Plugin::check(Res, "error in cuMemGetAllocationGranularity: %s"))
+      return Err;
+    if (Granularity == 0)
+      return Plugin::error(ErrorCode::INVALID_ARGUMENT,
+                           "wrong device page size");
+      }
+    }
+
     void *MemAlloc = nullptr;
     CUdeviceptr DevicePtr;
     CUresult Res;
@@ -1442,6 +1455,10 @@ private:
   /// The maximum number of warps that can be resident on all the SMs
   /// simultaneously.
   uint32_t HardwareParallelism = 0;
+
+  
+  /// Page size in the device
+  size_t Granularity = 0;
 
   /// Tracker for virtual address reservations.
   VMemTrackerTy<CUmemGenericAllocationHandle> VMemTracker;
