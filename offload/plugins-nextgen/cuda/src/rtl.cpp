@@ -589,14 +589,14 @@ struct CUDADeviceTy : public GenericDeviceTy {
 
     if (Alignment > 0) {
       if (Granularity == 0) {
-         CUresult Res = cuMemGetAllocationGranularity(
-        &Granularity, &Prop, CU_MEM_ALLOC_GRANULARITY_MINIMUM);
-    if (auto Err =
-            Plugin::check(Res, "error in cuMemGetAllocationGranularity: %s"))
-      return Err;
-    if (Granularity == 0)
-      return Plugin::error(ErrorCode::INVALID_ARGUMENT,
-                           "wrong device page size");
+        CUresult Res = cuMemGetAllocationGranularity(
+            &Granularity, &Prop, CU_MEM_ALLOC_GRANULARITY_MINIMUM);
+        if (auto Err = Plugin::check(
+                Res, "error in cuMemGetAllocationGranularity: %s"))
+          return Err;
+        if (Granularity == 0)
+          return Plugin::error(ErrorCode::INVALID_ARGUMENT,
+                               "wrong device page size");
       }
     }
 
@@ -1456,7 +1456,6 @@ private:
   /// simultaneously.
   uint32_t HardwareParallelism = 0;
 
-  
   /// Page size in the device
   size_t Granularity = 0;
 
