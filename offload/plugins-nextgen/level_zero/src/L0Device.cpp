@@ -334,7 +334,7 @@ Error L0DeviceTy::queryAsyncImpl(__tgt_async_info &AsyncInfo, bool ReleaseQueue,
 }
 
 Expected<void *> L0DeviceTy::allocate(size_t Size, void *HstPtr,
-                                      TargetAllocTy Kind) {
+                                      TargetAllocTy Kind, size_t Alignment) {
   return dataAlloc(Size, /*Align=*/0, Kind,
                    /*Offset=*/0, /*UserAlloc=*/HstPtr == nullptr,
                    /*DevMalloc=*/false);
@@ -880,7 +880,7 @@ Error L0DeviceTy::callGlobalCtorDtorCommon(GenericPluginTy &Plugin,
              [](const auto &X, const auto &Y) { return X.second < Y.second; });
 
   auto BufferOrErr = allocate(Funcs.size() * sizeof(void *),
-                              /*HostPtr=*/nullptr, TARGET_ALLOC_DEVICE);
+                              /*HostPtr=*/nullptr, TARGET_ALLOC_DEVICE, 0);
   if (!BufferOrErr)
     return HandleErr(BufferOrErr.takeError());
 
