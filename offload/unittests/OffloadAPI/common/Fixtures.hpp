@@ -8,6 +8,7 @@
 
 #include <OffloadAPI.h>
 #include <OffloadPrint.hpp>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <optional>
 #include <string>
@@ -207,11 +208,58 @@ struct OffloadDeviceTest
   ol_device_handle_t Device = nullptr;
 };
 
+template <class T> using OffloadParam = std::tuple<TestEnvironment::Device, T>;
+
+template <class T>
+struct OffloadDeviceTestWithParam
+    : OffloadTest,
+      ::testing::WithParamInterface<OffloadParam<T>> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
+
+    auto &DeviceParam = std::get<0>(this->GetParam());
+    Device = DeviceParam.Handle;
+    if (Device == nullptr)
+      GTEST_SKIP() << "No available devices.";
+  }
+
+  ol_platform_backend_t getPlatformBackend() const {
+    ol_platform_handle_t Platform = nullptr;
+    if (olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
+                        sizeof(ol_platform_handle_t), &Platform))
+      return OL_PLATFORM_BACKEND_UNKNOWN;
+    ol_platform_backend_t Backend;
+    if (olGetPlatformInfo(Platform, OL_PLATFORM_INFO_BACKEND,
+                          sizeof(ol_platform_backend_t), &Backend))
+      return OL_PLATFORM_BACKEND_UNKNOWN;
+    return Backend;
+  }
+
+  const OffloadParam<T> &getParamTuple() const { return this->GetParam(); }
+
+  const T &getTestParam() { return std::get<1>(getParamTuple()); }
+
+  ol_device_handle_t Device = nullptr;
+};
+
 struct OffloadPlatformTest : OffloadDeviceTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
 
     ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
+                                   sizeof(Platform), &Platform));
+    ASSERT_NE(Platform, nullptr);
+  }
+
+  ol_platform_handle_t Platform = nullptr;
+};
+
+template <typename T>
+struct OffloadPlatformTestWithParam : OffloadDeviceTestWithParam<T> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::SetUp());
+
+    ASSERT_SUCCESS(olGetDeviceInfo(this->Device, OL_DEVICE_INFO_PLATFORM,
                                    sizeof(Platform), &Platform));
     ASSERT_NE(Platform, nullptr);
   }
@@ -244,6 +292,30 @@ struct OffloadProgramTest : OffloadDeviceTest {
   std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
 };
 
+template <typename T>
+struct OffloadProgramTestWithParam : OffloadDeviceTestWithParam<T> {
+  void SetUp() override { SetUpWith("foo"); }
+
+  void SetUpWith(const char *ProgramName) {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::SetUp());
+    ASSERT_TRUE(TestEnvironment::loadDeviceBinary(ProgramName, this->Device,
+                                                  DeviceBin));
+    ASSERT_GE(DeviceBin->getBufferSize(), 0lu);
+    ASSERT_SUCCESS(olCreateProgram(this->Device, DeviceBin->getBufferStart(),
+                                   DeviceBin->getBufferSize(), &Program));
+  }
+
+  void TearDown() override {
+    if (Program) {
+      olDestroyProgram(Program);
+    }
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::TearDown());
+  }
+
+  ol_program_handle_t Program = nullptr;
+  std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
+};
+
 struct OffloadKernelTest : OffloadProgramTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadProgramTest::SetUp());
@@ -266,6 +338,22 @@ struct OffloadGlobalTest : OffloadProgramTest {
 
   void TearDown() override {
     RETURN_ON_FATAL_FAILURE(OffloadProgramTest::TearDown());
+  }
+
+  ol_symbol_handle_t Global = nullptr;
+};
+
+template <typename T>
+struct OffloadGlobalTestWithParam : OffloadProgramTestWithParam<T> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(
+        OffloadProgramTestWithParam<T>::SetUpWith("global"));
+    ASSERT_SUCCESS(olGetSymbol(this->Program, "global",
+                               OL_SYMBOL_KIND_GLOBAL_VARIABLE, &Global));
+  }
+
+  void TearDown() override {
+    RETURN_ON_FATAL_FAILURE(OffloadProgramTestWithParam<T>::TearDown());
   }
 
   ol_symbol_handle_t Global = nullptr;
@@ -338,13 +426,64 @@ struct LaunchSingleKernelTestBase : LaunchKernelTestBase {
   ol_symbol_handle_t Kernel = nullptr;
 };
 
+using DevicesVec = std::vector<TestEnvironment::Device>;
+
+inline DevicesVec getDevicesAndHost() {
+  DevicesVec Res(TestEnvironment::getDevices());
+  TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
+
+  Res.push_back(Host);
+
+  return Res;
+}
+
+template <class T>
+inline std::string
+defaultPrinterWithParam(const ::testing::TestParamInfo<OffloadParam<T>> &info) {
+  auto device = std::get<0>(info.param);
+  auto param = std::get<1>(info.param);
+
+  std::string placeholder;
+  llvm::raw_string_ostream ss(placeholder);
+
+  ss << device.Name << "__" << param;
+
+  return SanitizeString(ss.str());
+}
+
+inline std::string
+defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
+  return SanitizeString(info.param.Name);
+}
+
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
 // a device will be silently skipped.
 #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(FIXTURE)                      \
+  INSTANTIATE_TEST_SUITE_P(, FIXTURE,                                          \
+                           ::testing::ValuesIn(TestEnvironment::getDevices()), \
+                           defaultPrinter);                                    \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
+                                                            PRINTER)           \
   INSTANTIATE_TEST_SUITE_P(                                                    \
-      , FIXTURE, ::testing::ValuesIn(TestEnvironment::getDevices()),           \
-      [](const ::testing::TestParamInfo<TestEnvironment::Device> &info) {      \
-        return SanitizeString(info.param.Name);                                \
-      });                                                                      \
+      , FIXTURE,                                                               \
+      testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
+                       ::testing::ValuesIn(VALUES)),                           \
+      PRINTER);                                                                \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(              \
+    FIXTURE, VALUES, PRINTER)                                                  \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(::testing::ValuesIn(getDevicesAndHost()),               \
+                       ::testing::ValuesIn(VALUES)),                           \
+      PRINTER);                                                                \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(FIXTURE)                 \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE, ::testing::ValuesIn(getDevicesAndHost()), defaultPrinter);    \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
