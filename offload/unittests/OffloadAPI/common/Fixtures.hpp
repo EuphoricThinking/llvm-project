@@ -207,6 +207,49 @@ struct OffloadDeviceTest
   ol_device_handle_t Device = nullptr;
 };
 
+
+template <class T> using OffloadParam = std::tuple<TestEnvironment::Device, T>;
+
+template <class T>
+struct OffloadDeviceTestWithParam
+    : OffloadTest,
+      ::testing::WithParamInterface<OffloadParam<T>> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
+
+    auto DeviceParam = getDevice();
+    Device = DeviceParam.Handle;
+    if (Device == nullptr)
+      GTEST_SKIP() << "No available devices.";
+  }
+
+  ol_platform_backend_t getPlatformBackend() const {
+    ol_platform_handle_t Platform = nullptr;
+    if (olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
+                        sizeof(ol_platform_handle_t), &Platform))
+      return OL_PLATFORM_BACKEND_UNKNOWN;
+    ol_platform_backend_t Backend;
+    if (olGetPlatformInfo(Platform, OL_PLATFORM_INFO_BACKEND,
+                          sizeof(ol_platform_backend_t), &Backend))
+      return OL_PLATFORM_BACKEND_UNKNOWN;
+    return Backend;
+  }
+
+  const OffloadParam<T> &getParamTuple() const {
+    return OffloadDeviceTest::GetParam();
+  }
+
+  ol_device_handle_t getDevice() {
+    return std::get<0>(getParamTuple());
+  }
+
+  const T &getTestParam() {
+    return std::get<1>(getParamTuple());
+  }
+
+  ol_device_handle_t Device = nullptr;
+};
+
 struct OffloadPlatformTest : OffloadDeviceTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
