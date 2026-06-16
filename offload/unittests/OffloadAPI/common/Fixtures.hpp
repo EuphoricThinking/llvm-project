@@ -384,7 +384,13 @@ struct LaunchSingleKernelTestBase : LaunchKernelTestBase {
 template <class T>
 inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
               OffloadParam<T>> &info) {
-                
+                auto device = std::get<0>(info.param);
+                auto param = std::get<1>(info.param);
+
+                std::stringstream ss;
+                ss << device.Name << "__" << param;
+
+                return SanitizeString(ss.str());
               }
 
 // Devices might not be available for offload testing, so allow uninstantiated
@@ -398,7 +404,7 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
       });                                                                      \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM_CUSTOM_PRINTER(FIXTURE, VALUES, PRINTER)           \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(                                                        \
@@ -407,3 +413,6 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
       PRINTER) \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
+
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+  OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM_CUSTOM_PRINTER(FIXTURE, VALUES, defaultPrinterWithParam)
