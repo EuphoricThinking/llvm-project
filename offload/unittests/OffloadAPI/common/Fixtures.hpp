@@ -381,6 +381,12 @@ struct LaunchSingleKernelTestBase : LaunchKernelTestBase {
   ol_symbol_handle_t Kernel = nullptr;
 };
 
+template <class T>
+inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
+              OffloadParam<T>> &info) {
+                
+              }
+
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
 // a device will be silently skipped.
@@ -391,3 +397,13 @@ struct LaunchSingleKernelTestBase : LaunchKernelTestBase {
         return SanitizeString(info.param.Name);                                \
       });                                                                      \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(                                                        \
+          ::testing::ValuesIn(TestEnvironment::getDevices()),  \
+          VALUES),                                                             \
+      PRINTER) \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
