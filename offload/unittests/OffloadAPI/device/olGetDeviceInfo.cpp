@@ -41,6 +41,10 @@ PropertyTuples Uint32Properties = createPropertyTuples(sizeof(uint32_t), PropUin
 PropertiesSet PropUint64{OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE, OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
 PropertyTuples Uint64Properties = createPropertyTuples(sizeof(uint64_t), PropUint64);
 
+PropertiesSet PropCapabilitiesFlags{OL_DEVICE_INFO_SINGLE_FP_CONFIG, OL_DEVICE_INFO_HALF_FP_CONFIG, OL_DEVICE_INFO_DOUBLE_FP_CONFIG};
+// sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t) 
+PropertyTuples CapabilitesFlagsProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), PropCapabilitiesFlags);
+
 // template <class T>
 // inline 
 std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInfo<
