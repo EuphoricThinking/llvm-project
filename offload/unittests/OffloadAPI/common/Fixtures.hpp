@@ -217,7 +217,7 @@ struct OffloadDeviceTestWithParam
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
 
-    auto DeviceParam = getDevice();
+    auto& DeviceParam = std::get<0>(this->GetParam()); //getDevice();
     Device = DeviceParam.Handle;
     if (Device == nullptr)
       GTEST_SKIP() << "No available devices.";
@@ -236,12 +236,12 @@ struct OffloadDeviceTestWithParam
   }
 
   const OffloadParam<T> &getParamTuple() const {
-    return OffloadDeviceTest::GetParam();
+    return this->GetParam();
   }
 
-  ol_device_handle_t getDevice() {
-    return std::get<0>(getParamTuple());
-  }
+  // const ol_device_handle_t &getDevice() {
+  //   return std::get<0>(getParamTuple());
+  // }
 
   const T &getTestParam() {
     return std::get<1>(getParamTuple());
@@ -388,6 +388,7 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
                 auto param = std::get<1>(info.param);
 
                 std::stringstream ss;
+                
                 ss << device.Name << "__" << param;
 
                 return SanitizeString(ss.str());
