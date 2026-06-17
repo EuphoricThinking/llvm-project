@@ -140,6 +140,7 @@ OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoProp
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyNonZeroTest, testing::ValuesIn(NonZeroProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
+// move only success
 TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
@@ -154,6 +155,7 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
     ASSERT_GT(Value, 0);
   }
   else {
+    // else test only success or leave it wuthout else
     GTEST_SKIP() << "Not meaningful value for host";
   }
 }
