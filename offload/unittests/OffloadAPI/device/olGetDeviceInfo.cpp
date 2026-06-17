@@ -45,6 +45,21 @@ PropertiesSet PropCapabilitiesFlags{OL_DEVICE_INFO_SINGLE_FP_CONFIG, OL_DEVICE_I
 // sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t) 
 PropertyTuples CapabilitesFlagsProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), PropCapabilitiesFlags);
 
+// PropertyTuples supportedProperties{BoolProperties};
+// supportedProperties.insert
+template <typename T>
+PropertyTuples mergeProperties(std::initializer_list<T> properties) {
+  PropertyTuples finalProperties;
+
+  for (auto prop: properties) {
+    finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
+  }
+
+  return finalProperties;
+}
+
+PropertyTuples supportedProperties = mergeProperties({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+
 // template <class T>
 // inline 
 std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInfo<
