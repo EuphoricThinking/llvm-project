@@ -45,6 +45,8 @@ PropertiesSet PropCapabilitiesFlags{OL_DEVICE_INFO_SINGLE_FP_CONFIG, OL_DEVICE_I
 // sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t) 
 PropertyTuples CapabilitesFlagsProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), PropCapabilitiesFlags);
 
+PropertiesSet HostNotMeaningfulGT{OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE, OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
+
 // PropertyTuples supportedProperties{BoolProperties};
 // supportedProperties.insert
 template <typename T>
@@ -104,11 +106,17 @@ struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTupl
 
   // // Choosing the largest type since current possible types are {bool, uint32_t, uint64_t}
   // uint64_t Value = 0;
+  bool isHost() {
+    return Host == this->Device;
+  }
 };
 
-OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
+using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 
-TEST_P(olGetHostDeviceInfoPropertyTest, SuccessSupport) {
+// OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertySupportTest, testing::ValuesIn(supportedProperties), olGetHostDeviceInfoPropertyTestPrinter);
+
+TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
 
