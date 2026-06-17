@@ -82,6 +82,8 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyT
 TEST_P(olGetHostDeviceInfoPropertyTest, Success) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
+
+  std::cout << this->Device << " " << Host << std::endl;
 }
 
 

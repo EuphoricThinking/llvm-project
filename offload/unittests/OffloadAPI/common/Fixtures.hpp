@@ -381,6 +381,18 @@ struct LaunchSingleKernelTestBase : LaunchKernelTestBase {
   ol_symbol_handle_t Kernel = nullptr;
 };
 
+// using DevicesVec = std::vector<TestEnvironment::Device>;
+
+// DevicesVec getDevicesAndHost() {
+//   DevicesVec Res(TestEnvironment::getDevices());
+
+//   TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
+
+//   Res.push_back(Host);
+
+//   return Res;
+// }
+
 template <class T>
 inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
               OffloadParam<T>> &info) {
