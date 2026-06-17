@@ -16,7 +16,24 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 using olGetDeviceInfoPropertyUint32Test = OffloadDeviceTestWithParam<uint32_t>;
 // std::vector PropertiesUint32<ol_device_info_t>;
                             // OL_DEVICE_INFO_DOUBLE_FP_SUPPORT);
-std::vector<ol_device_info_t> PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_FP_SUPPORT, OL_DEVICE_INFO_HALF_FP_SUPPORT};
+using PropertiesVec = std::vector<ol_device_info_t>;
+using PropertyTuple = std::tuple<size_t, ol_device_info_t>;
+using PropertyTuples = std::vector<PropertyTuple>;
+
+PropertyTuples createPropetyTuples(size_t PropSize, PropertiesVec SelectedProperties) {
+  PropertyTuples Res;
+  for (auto p: SelectedProperties) {
+    Res.push_back({PropSize, p});
+  }
+
+  return Res;
+}
+// std::vector<PropertyTuple> PropBoolTuples = 
+
+PropertiesVec PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_FP_SUPPORT, OL_DEVICE_INFO_HALF_FP_SUPPORT};
+
+PropertyTuples BoolProperties = createPropetyTuples(sizeof(bool), PropBool);
+
 using olGetDeviceInfoPropertyBoolTest = OffloadDeviceTestWithParam<ol_device_info_t>;
 
 
