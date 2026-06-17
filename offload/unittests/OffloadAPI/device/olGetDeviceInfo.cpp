@@ -43,11 +43,11 @@ std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInf
 
                 std::stringstream ss;
 
-                auto host = TestEnvironment::getHostDevice();
+                // auto host = TestEnvironment::getHostDevice();
 
-                if (device.Handle == host) {
-                  ss << "__" << "HOST" << "__";
-                }
+                // if (device.Handle == host) {
+                //   ss << "__" << "HOST" << "__";
+                // }
 
                 auto property = std::get<1>(paramTuple);
                 

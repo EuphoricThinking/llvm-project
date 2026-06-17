@@ -12,6 +12,7 @@
 #include <optional>
 #include <string>
 #include <thread>
+#include <fstream>
 
 #include "Environment.hpp"
 
@@ -386,7 +387,17 @@ using DevicesVec = std::vector<TestEnvironment::Device>;
 inline DevicesVec getDevicesAndHost() {
   DevicesVec Res(TestEnvironment::getDevices());
 
-  TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
+//   auto host = TestEnvironment::getHostDevice();
+
+//   ol_platform_handle_t Platform;
+//             olGetDeviceInfo(host, OL_DEVICE_INFO_PLATFORM, sizeof(Platform),
+//                             &Platform);
+
+// std::stringstream ss;
+// ss << Platform;
+
+//   TestEnvironment::Device Host{host, ss.str()};
+TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
 
   Res.push_back(Host);
 
