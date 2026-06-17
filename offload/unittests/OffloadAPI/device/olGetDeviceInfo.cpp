@@ -13,6 +13,15 @@
 using olGetDeviceInfoTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 
+using olGetDeviceInfoPropertyUint32Test = OffloadDeviceTestWithParam<uint32_t>;
+
+using olGetDeviceInfoPropertyUint64Test = OffloadDeviceTestWithParam<uint64_t>;
+
+using TestParams = std::variant<uint32_t, bool>;
+
+using olGetDeviceInfoPropertyTest = OffloadDeviceTestWithParam<TestParams>;
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyTest, ::testing::Values(TestParams{true}, TestParams{uint32_t{1}}));
+
 #define OL_DEVICE_INFO_TEST_SUCCESS_CHECK(TestName, PropType, PropName, Dev,   \
                                           Expr)                                \
   TEST_P(olGetDeviceInfoTest, Test##Dev##TestName) {                           \
