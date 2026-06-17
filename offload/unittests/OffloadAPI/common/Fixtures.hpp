@@ -439,7 +439,7 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(                                                        \
-          ::testing::ValuesIn(TestEnvironment::getDevices().push_back(TestEnvironment::getHostDevice())),  \
+          ::testing::ValuesIn(getDevicesAndHost()),  \
           VALUES),                                                             \
       PRINTER); \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)

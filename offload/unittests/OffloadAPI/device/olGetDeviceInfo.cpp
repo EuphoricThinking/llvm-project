@@ -77,7 +77,7 @@ struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTupl
   // uint64_t Value = 0;
 };
 
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
 TEST_P(olGetHostDeviceInfoPropertyTest, Success) {
   uint64_t Value = 0;
