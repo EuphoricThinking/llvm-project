@@ -161,6 +161,32 @@ ol_device_handle_t TestEnvironment::getHostDevice() {
   return HostDevice;
 }
 
+TestEnvironment::Device TestEnvironment::getHostDeviceStruct() {
+  static ol_device_handle_t HostDevice = nullptr;
+
+  if (!HostDevice) {
+    olIterateDevices(
+        [](ol_device_handle_t D, void *Data) {
+          ol_platform_handle_t Platform;
+          olGetDeviceInfo(D, OL_DEVICE_INFO_PLATFORM, sizeof(Platform),
+                          &Platform);
+          ol_platform_backend_t Backend;
+          olGetPlatformInfo(Platform, OL_PLATFORM_INFO_BACKEND, sizeof(Backend),
+                            &Backend);
+
+          if (Backend == OL_PLATFORM_BACKEND_HOST) {
+            *(static_cast<ol_device_handle_t *>(Data)) = D;
+            return false;
+          }
+
+          return true;
+        },
+        &HostDevice);
+  }
+
+  return HostDevice;
+}
+
 // TODO: Allow overriding via cmd line arg
 const std::string DeviceBinsDirectory = DEVICE_CODE_PATH;
 

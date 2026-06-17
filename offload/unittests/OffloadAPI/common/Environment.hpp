@@ -21,6 +21,7 @@ struct Device {
 
 const std::vector<Device> &getDevices();
 ol_device_handle_t getHostDevice();
+Device getHostDeviceStruct();
 bool loadDeviceBinary(const std::string &BinaryName, ol_device_handle_t Device,
                       std::unique_ptr<llvm::MemoryBuffer> &BinaryOut);
 } // namespace TestEnvironment
