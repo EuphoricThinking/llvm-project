@@ -410,7 +410,8 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
                 auto device = std::get<0>(info.param);
                 auto param = std::get<1>(info.param);
 
-                std::stringstream ss;
+                std::string placeholder;
+                llvm::raw_string_ostream ss(placeholder);
                 
                 ss << device.Name << "__" << param;
 
