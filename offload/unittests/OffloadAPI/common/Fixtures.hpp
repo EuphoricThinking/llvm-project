@@ -414,6 +414,24 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
       PRINTER); \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(                                                        \
+          ::testing::ValuesIn(TestEnvironment::getDevices()),  \
+          VALUES),                                                             \
+      PRINTER); \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(                                                        \
+          ::testing::ValuesIn(TestEnvironment::getDevices().push_back(TestEnvironment::getHostDevice())),  \
+          VALUES),                                                             \
+      PRINTER); \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
 
 // #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, TYPE)           \
 //   OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM_CUSTOM_PRINTER(FIXTURE, VALUES, defaultPrinterWithParam<TYPE>)

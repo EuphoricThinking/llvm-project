@@ -34,16 +34,38 @@ PropertiesVec PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_F
 
 PropertyTuples BoolProperties = createPropetyTuples(sizeof(bool), PropBool);
 
-using olGetDeviceInfoPropertyBoolTest = OffloadDeviceTestWithParam<ol_device_info_t>;
+struct olGetInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTuple> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple>::SetUp());
+
+    auto paramTuple = this->getTestParam();
+    PropertySize = std::get<0>(paramTuple);
+    Property = std::get<1>(paramTuple);
+  }
+
+  // ol_device_info_t getProperty() {
+  //   return std::get<1>(this->getTestParam());
+  // }  
+
+  size_t PropertySize = 0;
+  ol_device_info_t Property;
+
+  // // Choosing the largest type since current possible types are {bool, uint32_t, uint64_t}
+  // uint64_t Value = 0;
+};
+
+// using olGetDeviceInfoPropertyBoolTest = OffloadDeviceTestWithParam<ol_device_info_t>;
+
+// // using olGetDeviceInfoPropertyUint64Test = OffloadDeviceTestWithParam<uint64_t>;
+// OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyBoolTest, testing::ValuesIn(PropBool), defaultPrinterWithParam<ol_device_info_t>);
+
+// TEST_P(olGetDeviceInfoPropertyBoolTest, Success) {
+//   bool Dummy;
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device, getTestParam(), sizeof(Dummy), &Dummy));
+// }
 
 
-// using olGetDeviceInfoPropertyUint64Test = OffloadDeviceTestWithParam<uint64_t>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyBoolTest, testing::ValuesIn(PropBool), defaultPrinterWithParam<ol_device_info_t>);
 
-TEST_P(olGetDeviceInfoPropertyBoolTest, Success) {
-  bool Dummy;
-  ASSERT_SUCCESS(olGetDeviceInfo(Device, getTestParam(), sizeof(Dummy), &Dummy));
-}
 
 // TEST_P(olGetDeviceInfoPropertyUint32Test, SUCCESS)
 
