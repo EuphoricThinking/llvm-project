@@ -19,8 +19,10 @@ using olGetDeviceInfoPropertyUint32Test = OffloadDeviceTestWithParam<uint32_t>;
 using PropertiesVec = std::vector<ol_device_info_t>;
 using PropertyTuple = std::tuple<size_t, ol_device_info_t>;
 using PropertyTuples = std::vector<PropertyTuple>;
+using PropertiesSet = std::set<ol_device_info_t>;
 
-PropertyTuples createPropetyTuples(size_t PropSize, PropertiesVec SelectedProperties) {
+template <typename Container>
+PropertyTuples createPropertyTuples(size_t PropSize, Container SelectedProperties) {
   PropertyTuples Res;
   for (auto p: SelectedProperties) {
     Res.push_back({PropSize, p});
@@ -30,9 +32,11 @@ PropertyTuples createPropetyTuples(size_t PropSize, PropertiesVec SelectedProper
 }
 // std::vector<PropertyTuple> PropBoolTuples = 
 
-PropertiesVec PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_FP_SUPPORT, OL_DEVICE_INFO_HALF_FP_SUPPORT};
+PropertiesSet PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_FP_SUPPORT, OL_DEVICE_INFO_HALF_FP_SUPPORT};
+PropertyTuples BoolProperties = createPropertyTuples(sizeof(bool), PropBool);
 
-PropertyTuples BoolProperties = createPropetyTuples(sizeof(bool), PropBool);
+PropertiesSet PropUint32{OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE, OL_DEVICE_INFO_MAX_WORK_SIZE, OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_NUM_COMPUTE_UNITS, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_CHAR, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_SHORT, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_INT, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_LONG, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_FLOAT, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_DOUBLE, OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF, OL_DEVICE_INFO_MAX_CLOCK_FREQUENCY, OL_DEVICE_INFO_MEMORY_CLOCK_RATE, OL_DEVICE_INFO_ADDRESS_BITS};
+PropertyTuples Uint32Properties = createPropertyTuples(sizeof(uint32_t), PropUint32);
 
 // template <class T>
 // inline 
