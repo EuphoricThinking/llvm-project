@@ -34,10 +34,33 @@ PropertiesVec PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_F
 
 PropertyTuples BoolProperties = createPropetyTuples(sizeof(bool), PropBool);
 
-struct olGetInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTuple> {
+// template <class T>
+// inline 
+std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInfo<
+              OffloadParam<PropertyTuple>> &info) {
+                auto device = std::get<0>(info.param);
+                auto paramTuple = std::get<1>(info.param);
+
+                std::stringstream ss;
+
+                auto host = TestEnvironment::getHostDevice();
+
+                if (device.Handle == host) {
+                  ss << "__" << "HOST" << "__";
+                }
+
+                auto property = std::get<1>(paramTuple);
+                
+                ss << device.Name << "__" << property;
+
+                return SanitizeString(ss.str());
+              }
+
+struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTuple> {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple>::SetUp());
 
+    // TODO check host and device
     auto paramTuple = this->getTestParam();
     PropertySize = std::get<0>(paramTuple);
     Property = std::get<1>(paramTuple);
@@ -53,6 +76,9 @@ struct olGetInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTuple> {
   // // Choosing the largest type since current possible types are {bool, uint32_t, uint64_t}
   // uint64_t Value = 0;
 };
+
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
+
 
 // using olGetDeviceInfoPropertyBoolTest = OffloadDeviceTestWithParam<ol_device_info_t>;
 
