@@ -54,13 +54,34 @@ PropertyTuples mergeProperties(std::initializer_list<T> properties) {
   PropertyTuples finalProperties;
 
   for (auto prop: properties) {
-    finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
+      finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
   }
 
   return finalProperties;
 }
 
+template <typename Container>
+Container copyRelevantProperties(Container properties, Container unwanted) {
+  Container res(properties);
+
+  for (auto prop: unwanted) {
+    res.erase(prop);
+  }
+
+  return res;
+}
+
 PropertyTuples supportedProperties = mergeProperties({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+
+PropertiesSet relevantGTCapabilities = copyRelevantProperties(PropCapabilitiesFlags, {OL_DEVICE_INFO_HALF_FP_CONFIG});
+PropertyTuples relevantGTCapabilitiesProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), relevantGTCapabilities);
+
+PropertiesSet relevantGTUint32 = copyRelevantProperties(PropUint32, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF});
+PropertyTuples relevantGTUint32Properties = createPropertyTuples(sizeof(uint32_t), relevantGTUint32);
+
+PropertyTuples NonZeroProperties = mergeProperties({relevantGTCapabilitiesProperties, relevantGTUint32Properties, Uint64Properties});
+
+
 
 // template <class T>
 // inline 
@@ -112,15 +133,29 @@ struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTupl
 };
 
 using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
+using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
 // OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertySupportTest, testing::ValuesIn(supportedProperties), olGetHostDeviceInfoPropertyTestPrinter);
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyNonZeroTest, testing::ValuesIn(NonZeroProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
 TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
 
   std::cout << this->Device << " " << Host << std::endl;
+}
+
+TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
+  if (!isHost() || (HostNotMeaningfulGT.find(Property) == HostNotMeaningfulGT.end())) {
+    uint64_t Value = 0;
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
+    ASSERT_GT(Value, 0);
+  }
+  else {
+    GTEST_SKIP() << "Not meaningful value for host";
+  }
 }
 
 
