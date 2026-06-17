@@ -41,7 +41,8 @@ std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInf
                 auto device = std::get<0>(info.param);
                 auto paramTuple = std::get<1>(info.param);
 
-                std::stringstream ss;
+                std::string ss;
+                llvm::raw_string_ostream finalName(ss);
 
                 // auto host = TestEnvironment::getHostDevice();
 
@@ -50,10 +51,12 @@ std::string olGetHostDeviceInfoPropertyTestPrinter(const ::testing::TestParamInf
                 // }
 
                 auto property = std::get<1>(paramTuple);
-                
-                ss << device.Name << "__" << property;
 
-                return SanitizeString(ss.str());
+
+                
+                finalName << device.Name << "__" << property;
+
+                return SanitizeString(finalName.str());
               }
 
 struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTuple> {
@@ -79,7 +82,7 @@ struct olGetHostDeviceInfoPropertyTest : OffloadDeviceTestWithParam<PropertyTupl
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
-TEST_P(olGetHostDeviceInfoPropertyTest, Success) {
+TEST_P(olGetHostDeviceInfoPropertyTest, SuccessSupport) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
 
