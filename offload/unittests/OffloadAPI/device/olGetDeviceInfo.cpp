@@ -14,13 +14,26 @@ using olGetDeviceInfoTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 
 using olGetDeviceInfoPropertyUint32Test = OffloadDeviceTestWithParam<uint32_t>;
+// std::vector PropertiesUint32<ol_device_info_t>;
+                            // OL_DEVICE_INFO_DOUBLE_FP_SUPPORT);
+std::vector<ol_device_info_t> PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT, OL_DEVICE_INFO_DOUBLE_FP_SUPPORT, OL_DEVICE_INFO_HALF_FP_SUPPORT};
+using olGetDeviceInfoPropertyBoolTest = OffloadDeviceTestWithParam<ol_device_info_t>;
 
-using olGetDeviceInfoPropertyUint64Test = OffloadDeviceTestWithParam<uint64_t>;
 
-using TestParams = std::variant<uint32_t, bool>;
+// using olGetDeviceInfoPropertyUint64Test = OffloadDeviceTestWithParam<uint64_t>;
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyBoolTest, testing::ValuesIn(PropBool), defaultPrinterWithParam<ol_device_info_t>);
 
-using olGetDeviceInfoPropertyTest = OffloadDeviceTestWithParam<TestParams>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyTest, ::testing::Values(TestParams{true}, TestParams{uint32_t{1}}));
+TEST_P(olGetDeviceInfoPropertyBoolTest, Success) {
+  bool Dummy;
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, getTestParam(), sizeof(Dummy), &Dummy));
+}
+
+// TEST_P(olGetDeviceInfoPropertyUint32Test, SUCCESS)
+
+// using TestParams = std::variant<uint32_t, bool>;
+
+// using olGetDeviceInfoPropertyTest = OffloadDeviceTestWithParam<TestParams>;
+// OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetDeviceInfoPropertyTest, ::testing::Values(TestParams{true}, TestParams{uint32_t{1}}));
 
 #define OL_DEVICE_INFO_TEST_SUCCESS_CHECK(TestName, PropType, PropName, Dev,   \
                                           Expr)                                \
