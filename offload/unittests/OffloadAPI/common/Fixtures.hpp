@@ -8,11 +8,11 @@
 
 #include <OffloadAPI.h>
 #include <OffloadPrint.hpp>
+#include <fstream>
 #include <gtest/gtest.h>
 #include <optional>
 #include <string>
 #include <thread>
-#include <fstream>
 
 #include "Environment.hpp"
 
@@ -208,7 +208,6 @@ struct OffloadDeviceTest
   ol_device_handle_t Device = nullptr;
 };
 
-
 template <class T> using OffloadParam = std::tuple<TestEnvironment::Device, T>;
 
 template <class T>
@@ -218,7 +217,7 @@ struct OffloadDeviceTestWithParam
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
 
-    auto& DeviceParam = std::get<0>(this->GetParam()); //getDevice();
+    auto &DeviceParam = std::get<0>(this->GetParam()); // getDevice();
     Device = DeviceParam.Handle;
     if (Device == nullptr)
       GTEST_SKIP() << "No available devices.";
@@ -236,17 +235,13 @@ struct OffloadDeviceTestWithParam
     return Backend;
   }
 
-  const OffloadParam<T> &getParamTuple() const {
-    return this->GetParam();
-  }
+  const OffloadParam<T> &getParamTuple() const { return this->GetParam(); }
 
   // const ol_device_handle_t &getDevice() {
   //   return std::get<0>(getParamTuple());
   // }
 
-  const T &getTestParam() {
-    return std::get<1>(getParamTuple());
-  }
+  const T &getTestParam() { return std::get<1>(getParamTuple()); }
 
   ol_device_handle_t Device = nullptr;
 };
@@ -387,17 +382,18 @@ using DevicesVec = std::vector<TestEnvironment::Device>;
 inline DevicesVec getDevicesAndHost() {
   DevicesVec Res(TestEnvironment::getDevices());
 
-//   auto host = TestEnvironment::getHostDevice();
+  //   auto host = TestEnvironment::getHostDevice();
 
-//   ol_platform_handle_t Platform;
-//             olGetDeviceInfo(host, OL_DEVICE_INFO_PLATFORM, sizeof(Platform),
-//                             &Platform);
+  //   ol_platform_handle_t Platform;
+  //             olGetDeviceInfo(host, OL_DEVICE_INFO_PLATFORM,
+  //             sizeof(Platform),
+  //                             &Platform);
 
-// std::stringstream ss;
-// ss << Platform;
+  // std::stringstream ss;
+  // ss << Platform;
 
-//   TestEnvironment::Device Host{host, ss.str()};
-TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
+  //   TestEnvironment::Device Host{host, ss.str()};
+  TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
 
   Res.push_back(Host);
 
@@ -405,18 +401,18 @@ TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
 }
 
 template <class T>
-inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
-              OffloadParam<T>> &info) {
-                auto device = std::get<0>(info.param);
-                auto param = std::get<1>(info.param);
+inline std::string
+defaultPrinterWithParam(const ::testing::TestParamInfo<OffloadParam<T>> &info) {
+  auto device = std::get<0>(info.param);
+  auto param = std::get<1>(info.param);
 
-                std::string placeholder;
-                llvm::raw_string_ostream ss(placeholder);
-                
-                ss << device.Name << "__" << param;
+  std::string placeholder;
+  llvm::raw_string_ostream ss(placeholder);
 
-                return SanitizeString(ss.str());
-              }
+  ss << device.Name << "__" << param;
+
+  return SanitizeString(ss.str());
+}
 
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
@@ -429,33 +425,31 @@ inline std::string defaultPrinterWithParam(const ::testing::TestParamInfo<
       });                                                                      \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
+                                                            PRINTER)           \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(                                                        \
-          ::testing::ValuesIn(TestEnvironment::getDevices()),  \
-          VALUES),                                                             \
-      PRINTER); \
+      testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
+                       VALUES),                                                \
+      PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
+                                                            PRINTER)           \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(                                                        \
-          ::testing::ValuesIn(TestEnvironment::getDevices()),  \
-          VALUES),                                                             \
-      PRINTER); \
+      testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
+                       VALUES),                                                \
+      PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, PRINTER)           \
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(              \
+    FIXTURE, VALUES, PRINTER)                                                  \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(                                                        \
-          ::testing::ValuesIn(getDevicesAndHost()),  \
-          VALUES),                                                             \
-      PRINTER); \
+      testing::Combine(::testing::ValuesIn(getDevicesAndHost()), VALUES),      \
+      PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
-
 
 // #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, TYPE)           \
 //   OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM_CUSTOM_PRINTER(FIXTURE, VALUES, defaultPrinterWithParam<TYPE>)
