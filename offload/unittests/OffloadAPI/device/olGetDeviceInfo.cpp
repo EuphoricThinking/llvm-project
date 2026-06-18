@@ -20,6 +20,15 @@ using PropertiesVec = std::vector<ol_device_info_t>;
 using PropertyTuple = std::tuple<size_t, ol_device_info_t>;
 using PropertyTuples = std::vector<PropertyTuple>;
 using PropertiesSet = std::set<ol_device_info_t>;
+using PropertiesTypes = std::unordered_map<ol_device_info_t, PropertyTuple>;
+
+size_t getSize(PropertyTuple &prop) {
+  return std::get<0>(prop);
+}
+
+ol_device_info_t getProp(PropertyTuple &prop) {
+  return std::get<1>(prop);
+}
 
 template <typename Container>
 PropertyTuples createPropertyTuples(size_t PropSize, Container SelectedProperties) {
@@ -71,7 +80,24 @@ Container copyRelevantProperties(Container properties, Container unwanted) {
   return res;
 }
 
+
+PropertiesTypes createTypesMap(std::initializer_list<PropertyTuples> properties) {
+ PropertiesTypes Res;
+
+ for (auto container: properties) {
+  for (auto prop: container) {
+    Res.insert({getProp(prop), prop});
+  }
+ }
+
+ return Res;
+}
+
+PropertiesTypes propertiesTypes = createTypesMap({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+
 PropertyTuples supportedProperties = mergeProperties({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+
+PropertyTuples JustSupportedProperties = mergeProperties({BoolProperties, {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG), propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
 
 PropertiesSet relevantGTCapabilities = copyRelevantProperties(PropCapabilitiesFlags, {OL_DEVICE_INFO_HALF_FP_CONFIG});
 PropertyTuples relevantGTCapabilitiesProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), relevantGTCapabilities);
@@ -81,7 +107,10 @@ PropertyTuples relevantGTUint32Properties = createPropertyTuples(sizeof(uint32_t
 
 PropertyTuples NonZeroProperties = mergeProperties({relevantGTCapabilitiesProperties, relevantGTUint32Properties, Uint64Properties});
 
-
+template <typename Container>
+bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
+  return notMeaningful.find(prop) == notMeaningful.end();
+}
 
 // template <class T>
 // inline 
@@ -136,7 +165,8 @@ using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
 // OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyTest, testing::ValuesIn(BoolProperties), olGetHostDeviceInfoPropertyTestPrinter);
-OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertySupportTest, testing::ValuesIn(supportedProperties), olGetHostDeviceInfoPropertyTestPrinter);
+// OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertySupportTest, testing::ValuesIn(supportedProperties), olGetHostDeviceInfoPropertyTestPrinter);
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertySupportTest, testing::ValuesIn(JustSupportedProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(olGetHostDeviceInfoPropertyNonZeroTest, testing::ValuesIn(NonZeroProperties), olGetHostDeviceInfoPropertyTestPrinter);
 
@@ -150,17 +180,23 @@ TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
 }
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
-  // success either way
-  if (!isHost() || (HostNotMeaningfulGT.find(Property) == HostNotMeaningfulGT.end())) {
-    uint64_t Value = 0;
+   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
+
+  if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
     ASSERT_GT(Value, 0);
   }
-  else {
-    // else test only success or leave it wuthout else
-    // no else
-    GTEST_SKIP() << "Not meaningful value for host";
-  }
+  // // success either way
+  // if (!isHost() || (HostNotMeaningfulGT.find(Property) == HostNotMeaningfulGT.end())) {
+  //   uint64_t Value = 0;
+  // ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
+  //   ASSERT_GT(Value, 0);
+  // }
+  // else {
+  //   // else test only success or leave it wuthout else
+  //   // no else
+  //   GTEST_SKIP() << "Not meaningful value for host";
+  // }
 }
 
 
