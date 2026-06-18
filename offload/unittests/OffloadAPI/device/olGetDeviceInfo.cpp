@@ -69,17 +69,26 @@ PropertyTuples mergeProperties(std::initializer_list<T> properties) {
   return finalProperties;
 }
 
-template <typename Container>
-Container copyRelevantProperties(Container properties, Container unwanted) {
-  Container res(properties);
+// template <typename Container>
+// Container copyRelevantProperties(Container properties, Container unwanted) {
+//   Container res(properties);
+
+//   for (auto prop: unwanted) {
+//     res.erase(prop);
+//   }
+
+//   return res;
+// }
+
+PropertyTuples copyRelevantProperties(PropertyTuples properties, std::initializer_list<ol_device_info_t> unwanted, PropertiesTypes typesMap) {
+  PropertyTuples res(properties);
 
   for (auto prop: unwanted) {
-    res.erase(prop);
+    res.erase(std::find(res.begin(), res.end(), typesMap.at(prop)));
   }
 
   return res;
 }
-
 
 PropertiesTypes createTypesMap(std::initializer_list<PropertyTuples> properties) {
  PropertiesTypes Res;
@@ -99,11 +108,11 @@ PropertyTuples supportedProperties = mergeProperties({BoolProperties, Uint32Prop
 
 PropertyTuples JustSupportedProperties = mergeProperties({BoolProperties, {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG), propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
 
-PropertiesSet relevantGTCapabilities = copyRelevantProperties(PropCapabilitiesFlags, {OL_DEVICE_INFO_HALF_FP_CONFIG});
-PropertyTuples relevantGTCapabilitiesProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), relevantGTCapabilities);
+PropertyTuples relevantGTCapabilitiesProperties = copyRelevantProperties(CapabilitesFlagsProperties, {OL_DEVICE_INFO_HALF_FP_CONFIG}, propertiesTypes);
+// PropertyTuples relevantGTCapabilitiesProperties = createPropertyTuples(sizeof(ol_device_fp_capability_flags_t), relevantGTCapabilities);
 
-PropertiesSet relevantGTUint32 = copyRelevantProperties(PropUint32, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF});
-PropertyTuples relevantGTUint32Properties = createPropertyTuples(sizeof(uint32_t), relevantGTUint32);
+PropertyTuples relevantGTUint32Properties = copyRelevantProperties(Uint32Properties, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF}, propertiesTypes);
+// PropertyTuples relevantGTUint32Properties = createPropertyTuples(sizeof(uint32_t), relevantGTUint32);
 
 PropertyTuples NonZeroProperties = mergeProperties({relevantGTCapabilitiesProperties, relevantGTUint32Properties, Uint64Properties});
 
@@ -176,7 +185,7 @@ TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   uint64_t Value = 0;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value)); 
 
-  std::cout << this->Device << " " << Host << std::endl;
+  // std::cout << this->Device << " " << Host << std::endl;
 }
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
