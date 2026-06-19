@@ -14,6 +14,27 @@
 using olGetDeviceInfoTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 
+PropertyTuples JustSupportedProperties = mergeProperties(
+    {BoolProperties,
+     {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG),
+      propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
+
+PropertyTuples relevantGTCapabilitiesProperties =
+    copyRelevantProperties(CapabilitesFlagsProperties,
+                           {OL_DEVICE_INFO_HALF_FP_CONFIG}, propertiesTypes);
+
+PropertyTuples relevantGTUint32Properties = copyRelevantProperties(
+    Uint32Properties, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF},
+    propertiesTypes);
+
+PropertyTuples NonZeroProperties =
+    mergeProperties({relevantGTCapabilitiesProperties,
+                     relevantGTUint32Properties, Uint64Properties});
+
+PropertiesSet HostNotMeaningfulGT{
+    OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
+    OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
+
 struct olGetHostDeviceInfoPropertyTest
     : OffloadDeviceTestWithParam<PropertyTuple> {
   void SetUp() override {
