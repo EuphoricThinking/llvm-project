@@ -7,148 +7,12 @@
 //===----------------------------------------------------------------------===//
 
 #include "../common/Fixtures.hpp"
+#include "../common/Device.hpp"
 #include <OffloadAPI.h>
 #include <gtest/gtest.h>
 
 using olGetDeviceInfoTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
-
-using PropertiesVec = std::vector<ol_device_info_t>;
-using PropertyTuple = std::tuple<size_t, ol_device_info_t>;
-using PropertyTuples = std::vector<PropertyTuple>;
-using PropertiesSet = std::set<ol_device_info_t>;
-using PropertiesTypes = std::unordered_map<ol_device_info_t, PropertyTuple>;
-
-size_t getSize(PropertyTuple &prop) { return std::get<0>(prop); }
-
-ol_device_info_t getProp(PropertyTuple &prop) { return std::get<1>(prop); }
-
-template <typename Container>
-PropertyTuples createPropertyTuples(size_t PropSize,
-                                    Container SelectedProperties) {
-  PropertyTuples Res;
-  for (auto p : SelectedProperties) {
-    Res.push_back({PropSize, p});
-  }
-
-  return Res;
-}
-
-template <typename T>
-PropertyTuples mergeProperties(std::initializer_list<T> properties) {
-  PropertyTuples finalProperties;
-
-  for (auto prop : properties) {
-    finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
-  }
-
-  return finalProperties;
-}
-
-PropertyTuples
-copyRelevantProperties(PropertyTuples properties,
-                       std::initializer_list<ol_device_info_t> unwanted,
-                       PropertiesTypes typesMap) {
-  PropertyTuples res(properties);
-
-  for (auto prop : unwanted) {
-    res.erase(std::find(res.begin(), res.end(), typesMap.at(prop)));
-  }
-
-  return res;
-}
-
-PropertiesTypes
-createTypesMap(std::initializer_list<PropertyTuples> properties) {
-  PropertiesTypes Res;
-
-  for (auto container : properties) {
-    for (auto prop : container) {
-      Res.insert({getProp(prop), prop});
-    }
-  }
-
-  return Res;
-}
-
-template <typename Container>
-bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
-  return notMeaningful.find(prop) == notMeaningful.end();
-}
-
-PropertiesSet PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT,
-                       OL_DEVICE_INFO_DOUBLE_FP_SUPPORT,
-                       OL_DEVICE_INFO_HALF_FP_SUPPORT};
-PropertyTuples BoolProperties = createPropertyTuples(sizeof(bool), PropBool);
-
-PropertiesSet PropUint32{OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE,
-                         OL_DEVICE_INFO_MAX_WORK_SIZE,
-                         OL_DEVICE_INFO_VENDOR_ID,
-                         OL_DEVICE_INFO_NUM_COMPUTE_UNITS,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_CHAR,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_SHORT,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_INT,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_LONG,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_FLOAT,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_DOUBLE,
-                         OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF,
-                         OL_DEVICE_INFO_MAX_CLOCK_FREQUENCY,
-                         OL_DEVICE_INFO_MEMORY_CLOCK_RATE,
-                         OL_DEVICE_INFO_ADDRESS_BITS};
-PropertyTuples Uint32Properties =
-    createPropertyTuples(sizeof(uint32_t), PropUint32);
-
-PropertiesSet PropUint64{OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
-                         OL_DEVICE_INFO_GLOBAL_MEM_SIZE,
-                         OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
-PropertyTuples Uint64Properties =
-    createPropertyTuples(sizeof(uint64_t), PropUint64);
-
-PropertiesSet PropCapabilitiesFlags{OL_DEVICE_INFO_SINGLE_FP_CONFIG,
-                                    OL_DEVICE_INFO_HALF_FP_CONFIG,
-                                    OL_DEVICE_INFO_DOUBLE_FP_CONFIG};
-// sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t)
-PropertyTuples CapabilitesFlagsProperties = createPropertyTuples(
-    sizeof(ol_device_fp_capability_flags_t), PropCapabilitiesFlags);
-
-PropertiesSet HostNotMeaningfulGT{
-    OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
-    OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
-
-PropertiesTypes propertiesTypes =
-    createTypesMap({BoolProperties, Uint32Properties, Uint64Properties,
-                    CapabilitesFlagsProperties});
-
-PropertyTuples JustSupportedProperties = mergeProperties(
-    {BoolProperties,
-     {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG),
-      propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
-
-PropertyTuples relevantGTCapabilitiesProperties =
-    copyRelevantProperties(CapabilitesFlagsProperties,
-                           {OL_DEVICE_INFO_HALF_FP_CONFIG}, propertiesTypes);
-
-PropertyTuples relevantGTUint32Properties = copyRelevantProperties(
-    Uint32Properties, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF},
-    propertiesTypes);
-
-PropertyTuples NonZeroProperties =
-    mergeProperties({relevantGTCapabilitiesProperties,
-                     relevantGTUint32Properties, Uint64Properties});
-
-std::string olGetHostDeviceInfoPropertyTestPrinter(
-    const ::testing::TestParamInfo<OffloadParam<PropertyTuple>> &info) {
-  auto device = std::get<0>(info.param);
-  auto paramTuple = std::get<1>(info.param);
-
-  std::string ss;
-  llvm::raw_string_ostream finalName(ss);
-
-  auto property = std::get<1>(paramTuple);
-  finalName << device.Name << "__" << property;
-
-  return SanitizeString(finalName.str());
-}
 
 struct olGetHostDeviceInfoPropertyTest
     : OffloadDeviceTestWithParam<PropertyTuple> {
@@ -183,18 +47,20 @@ OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
 TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   // Choosing the largest type since current possible types are {bool, uint32_t,
   // uint64_t}
-  uint64_t Value = 0;
+  // uint64_t Value = 0;
+  char Value[8];
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
   // std::cout << this->Device << " " << Host << std::endl;
 }
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
-  uint64_t Value = 0;
+  // uint64_t Value = 0;
+  char Value[8] = {0, 0, 0, 0, 0, 0, 0, 0};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
   if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
-    ASSERT_GT(Value, 0);
+    ASSERT_GT(*reinterpret_cast<uint64_t*>(Value), 0ul);
   }
 }
 
