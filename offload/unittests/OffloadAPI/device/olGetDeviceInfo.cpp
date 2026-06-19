@@ -48,7 +48,7 @@ TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
   // Choosing the largest type since current possible types are {bool, uint32_t,
   // uint64_t}
   // uint64_t Value = 0;
-  char Value[8];
+  char Value[MAX_DEVICE_INFO_BYTES];
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
   // std::cout << this->Device << " " << Host << std::endl;
@@ -56,7 +56,7 @@ TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   // uint64_t Value = 0;
-  char Value[8] = {0, 0, 0, 0, 0, 0, 0, 0};
+  char Value[MAX_DEVICE_INFO_BYTES] = {};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
   if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
