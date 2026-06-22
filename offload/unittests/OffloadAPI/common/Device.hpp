@@ -65,7 +65,7 @@ inline createTypesMap(std::initializer_list<PropertyTuples> properties) {
 }
 
 inline bool defaultCheckIfNonZero(char* buffer) {
-  return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES);
+  return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) == 0;
 }
 
 template <typename Container>
