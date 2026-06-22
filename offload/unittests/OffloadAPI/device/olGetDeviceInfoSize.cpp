@@ -9,9 +9,19 @@
 #include <OffloadAPI.h>
 
 #include "../common/Fixtures.hpp"
+#include "../common/Device.hpp"
 
 using olGetDeviceInfoSizeTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);
+
+using olGetDeviceInfoSizeWithParamTest = olGetHostDeviceInfoPropertyTest;
+
+PropertyTuples sizeProperties = mergeProperties({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+    olGetDeviceInfoSizeWithParamTest,
+    testing::ValuesIn(sizeProperties),
+    olGetHostDeviceInfoPropertyTestPrinter);
 
 #define OL_DEVICE_INFO_SIZE_TEST(TestName, PropName, Expr)                     \
   TEST_P(olGetDeviceInfoSizeTest, Success##TestName) {                         \

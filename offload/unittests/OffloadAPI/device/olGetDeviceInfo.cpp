@@ -35,22 +35,6 @@ PropertiesSet HostNotMeaningfulGT{
     OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
     OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
 
-struct olGetHostDeviceInfoPropertyTest
-    : OffloadDeviceTestWithParam<PropertyTuple> {
-  void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple>::SetUp());
-
-    auto paramTuple = this->getTestParam();
-    PropertySize = std::get<0>(paramTuple);
-    Property = std::get<1>(paramTuple);
-  }
-
-  size_t PropertySize = 0;
-  ol_device_info_t Property;
-
-  bool isHost() { return Host == this->Device; }
-};
-
 using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
