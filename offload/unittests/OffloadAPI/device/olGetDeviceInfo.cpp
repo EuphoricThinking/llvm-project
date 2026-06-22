@@ -66,7 +66,7 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
 
   if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
     // ASSERT_GT(*reinterpret_cast<uint64_t*>(Value), 0ul);
-    ASSERT_TRUE(defaultCheckIfNonZero(Value));
+    ASSERT_TRUE(defaultCheckIsNonZero(Value));
   }
 }
 

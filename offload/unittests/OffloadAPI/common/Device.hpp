@@ -64,7 +64,7 @@ inline createTypesMap(std::initializer_list<PropertyTuples> properties) {
   return Res;
 }
 
-inline bool defaultCheckIfNonZero(char* buffer) {
+inline bool defaultCheckIsNonZero(char* buffer) {
   return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
 }
 
