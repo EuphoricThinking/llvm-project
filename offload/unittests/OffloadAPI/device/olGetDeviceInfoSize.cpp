@@ -14,14 +14,32 @@
 using olGetDeviceInfoSizeTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);
 
-using olGetDeviceInfoSizeWithParamTest = olGetHostDeviceInfoPropertyTest;
+using olGetDeviceInfoSizeEqualTest = olGetHostDeviceInfoPropertyTest;
+using olGetDeviceInfoSizeNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
-PropertyTuples sizeProperties = mergeProperties({BoolProperties, Uint32Properties, Uint64Properties, CapabilitesFlagsProperties});
+PropertyTuples answerSizeEqualToTypeSizeProperties = mergeProperties({Uint32Properties, Uint64Properties, CapabilitesFlagsProperties, PlatformProperties, DeviceTypeProperties});
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceInfoSizeWithParamTest,
-    testing::ValuesIn(sizeProperties),
+    olGetDeviceInfoSizeEqualTest,
+    testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
     olGetHostDeviceInfoPropertyTestPrinter);
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+    olGetDeviceInfoSizeNonZeroTest,
+    testing::ValuesIn(NonZeroMiscProperties),
+    olGetHostDeviceInfoPropertyTestPrinter);
+
+TEST_P(olGetDeviceInfoSizeEqualTest, Success) {                         \
+    size_t Size = 0;                                                           \
+    ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
+    ASSERT_EQ(PropertySize, Size);
+}
+
+TEST_P(olGetDeviceInfoSizeNonZeroTest, Success) {                         \
+    size_t Size = 0;                                                           \
+    ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
+    ASSERT_NE(Size, 0ul);
+}
 
 #define OL_DEVICE_INFO_SIZE_TEST(TestName, PropName, Expr)                     \
   TEST_P(olGetDeviceInfoSizeTest, Success##TestName) {                         \
