@@ -126,3 +126,12 @@ struct olGetHostDeviceInfoPropertyTest
 
   bool isHost() { return Host == this->Device; }
 };
+
+struct olGetDeviceHostInfoTest
+    : OffloadDeviceTest {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
+  }
+
+  bool isHost() { return Host == this->Device; }
+};

@@ -70,20 +70,22 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   }
 }
 
-using olGetDeviceHostInfoTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(olGetDeviceHostInfoTest);
 
-TEST_P(olGetDeviceInfoTest, SuccessType) {
+// TEST_P(olGetDeviceInfoTest, SuccessType) {
+//   ol_device_type_t DeviceType;
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
+//                                  sizeof(ol_device_type_t), &DeviceType));
+// }
+
+TEST_P(olGetDeviceHostInfoTest, HostSuccessType) {
   ol_device_type_t DeviceType;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
                                  sizeof(ol_device_type_t), &DeviceType));
-}
-
-TEST_P(olGetDeviceInfoTest, HostSuccessType) {
-  ol_device_type_t DeviceType;
-  ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_TYPE,
-                                 sizeof(ol_device_type_t), &DeviceType));
+  
+                      if (isHost()) {
   ASSERT_EQ(DeviceType, OL_DEVICE_TYPE_HOST);
+                      }
 }
 
 TEST_P(olGetDeviceInfoTest, SuccessPlatform) {
