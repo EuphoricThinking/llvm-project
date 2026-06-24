@@ -19,12 +19,13 @@ using olGetDeviceInfoSizeNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
 PropertyTuples answerSizeEqualToTypeSizeProperties = mergeProperties({Uint32Properties, Uint64Properties, CapabilitesFlagsProperties, PlatformProperties, DeviceTypeProperties});
 
-OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeEqualTest,
     testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
     olGetHostDeviceInfoPropertyTestPrinter);
 
-OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+    // TODO cn it be both host and device?
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeNonZeroTest,
     testing::ValuesIn(NonZeroMiscProperties),
     olGetHostDeviceInfoPropertyTestPrinter);

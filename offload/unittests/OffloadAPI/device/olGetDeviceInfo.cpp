@@ -70,6 +70,8 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   }
 }
 
+
+
 TEST_P(olGetDeviceInfoTest, SuccessType) {
   ol_device_type_t DeviceType;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,

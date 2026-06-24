@@ -415,15 +415,17 @@ defaultPrinterWithParam(const ::testing::TestParamInfo<OffloadParam<T>> &info) {
   return SanitizeString(ss.str());
 }
 
+inline std::string defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
+  return SanitizeString(info.param.Name);
+}
+
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
 // a device will be silently skipped.
 #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(FIXTURE)                      \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE, ::testing::ValuesIn(TestEnvironment::getDevices()),           \
-      [](const ::testing::TestParamInfo<TestEnvironment::Device> &info) {      \
-        return SanitizeString(info.param.Name);                                \
-      });                                                                      \
+      defaultPrinter);                                                         \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
 #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
@@ -450,6 +452,13 @@ defaultPrinterWithParam(const ::testing::TestParamInfo<OffloadParam<T>> &info) {
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(getDevicesAndHost()), VALUES),      \
       PRINTER);                                                                \
+  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(              \
+    FIXTURE)                                                  \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(::testing::ValuesIn(getDevicesAndHost())));                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
 // #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, TYPE)           \
