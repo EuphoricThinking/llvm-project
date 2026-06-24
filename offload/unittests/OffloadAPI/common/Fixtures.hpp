@@ -458,7 +458,7 @@ inline std::string defaultPrinter(const ::testing::TestParamInfo<TestEnvironment
     FIXTURE)                                                  \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(::testing::ValuesIn(getDevicesAndHost())));                                                                \
+      ::testing::ValuesIn(getDevicesAndHost()), defaultPrinter);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
 // #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, TYPE)           \

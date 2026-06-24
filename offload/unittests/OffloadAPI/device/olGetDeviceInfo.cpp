@@ -70,7 +70,8 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   }
 }
 
-
+using olGetDeviceHostInfoTest = OffloadDeviceTest;
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(olGetDeviceHostInfoTest);
 
 TEST_P(olGetDeviceInfoTest, SuccessType) {
   ol_device_type_t DeviceType;
