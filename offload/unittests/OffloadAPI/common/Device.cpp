@@ -37,13 +37,18 @@ PropertyTuples CapabilitesFlagsProperties = createPropertyTuples(
     sizeof(ol_device_fp_capability_flags_t), PropCapabilitiesFlags);
 
 PropertiesSet PropDeviceType{OL_DEVICE_INFO_TYPE};
-PropertyTuples DeviceTypeProperties = createPropertyTuples(sizeof(ol_device_type_t), PropDeviceType);
+PropertyTuples DeviceTypeProperties =
+    createPropertyTuples(sizeof(ol_device_type_t), PropDeviceType);
 
 PropertiesSet PropPlatform{OL_DEVICE_INFO_PLATFORM};
-PropertyTuples PlatformProperties = createPropertyTuples(sizeof(ol_platform_handle_t), PropPlatform);
+PropertyTuples PlatformProperties =
+    createPropertyTuples(sizeof(ol_platform_handle_t), PropPlatform);
 
-PropertiesSet PropNonZeroMiscellaneous{ OL_DEVICE_INFO_NAME, OL_DEVICE_INFO_PRODUCT_NAME, OL_DEVICE_INFO_UID, OL_DEVICE_INFO_VENDOR, OL_DEVICE_INFO_DRIVER_VERSION};
-PropertyTuples NonZeroMiscProperties = createPropertyTuples(0, PropNonZeroMiscellaneous);
+PropertiesSet PropNonZeroMiscellaneous{
+    OL_DEVICE_INFO_NAME, OL_DEVICE_INFO_PRODUCT_NAME, OL_DEVICE_INFO_UID,
+    OL_DEVICE_INFO_VENDOR, OL_DEVICE_INFO_DRIVER_VERSION};
+PropertyTuples NonZeroMiscProperties =
+    createPropertyTuples(0, PropNonZeroMiscellaneous);
 
 PropertiesTypes propertiesTypes =
     createTypesMap({BoolProperties, Uint32Properties, Uint64Properties,

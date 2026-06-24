@@ -14,7 +14,9 @@ using PropertiesTypes = std::unordered_map<ol_device_info_t, PropertyTuple>;
 
 inline size_t getSize(PropertyTuple &prop) { return std::get<0>(prop); }
 
-inline ol_device_info_t getProp(PropertyTuple &prop) { return std::get<1>(prop); }
+inline ol_device_info_t getProp(PropertyTuple &prop) {
+  return std::get<1>(prop);
+}
 
 template <typename Container>
 PropertyTuples createPropertyTuples(size_t PropSize,
@@ -38,10 +40,9 @@ PropertyTuples mergeProperties(std::initializer_list<T> properties) {
   return finalProperties;
 }
 
-PropertyTuples
-inline copyRelevantProperties(PropertyTuples properties,
-                       std::initializer_list<ol_device_info_t> unwanted,
-                       PropertiesTypes typesMap) {
+PropertyTuples inline copyRelevantProperties(
+    PropertyTuples properties, std::initializer_list<ol_device_info_t> unwanted,
+    PropertiesTypes typesMap) {
   PropertyTuples res(properties);
 
   for (auto prop : unwanted) {
@@ -51,8 +52,8 @@ inline copyRelevantProperties(PropertyTuples properties,
   return res;
 }
 
-PropertiesTypes
-inline createTypesMap(std::initializer_list<PropertyTuples> properties) {
+PropertiesTypes inline createTypesMap(
+    std::initializer_list<PropertyTuples> properties) {
   PropertiesTypes Res;
 
   for (auto container : properties) {
@@ -64,7 +65,7 @@ inline createTypesMap(std::initializer_list<PropertyTuples> properties) {
   return Res;
 }
 
-inline bool defaultCheckIsNonZero(char* buffer) {
+inline bool defaultCheckIsNonZero(char *buffer) {
   return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
 }
 
@@ -127,11 +128,8 @@ struct olGetHostDeviceInfoPropertyTest
   bool isHost() { return Host == this->Device; }
 };
 
-struct olGetDeviceHostInfoTest
-    : OffloadDeviceTest {
-  void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
-  }
+struct olGetDeviceHostInfoTest : OffloadDeviceTest {
+  void SetUp() override { RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp()); }
 
   bool isHost() { return Host == this->Device; }
 };

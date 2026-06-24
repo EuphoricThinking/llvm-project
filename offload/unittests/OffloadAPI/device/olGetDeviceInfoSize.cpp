@@ -17,29 +17,30 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);
 using olGetDeviceInfoSizeEqualTest = olGetHostDeviceInfoPropertyTest;
 using olGetDeviceInfoSizeNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
-PropertyTuples answerSizeEqualToTypeSizeProperties = mergeProperties({Uint32Properties, Uint64Properties, CapabilitesFlagsProperties, PlatformProperties, DeviceTypeProperties});
+PropertyTuples answerSizeEqualToTypeSizeProperties = mergeProperties(
+    {Uint32Properties, Uint64Properties, CapabilitesFlagsProperties,
+     PlatformProperties, DeviceTypeProperties});
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeEqualTest,
     testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
     olGetHostDeviceInfoPropertyTestPrinter);
 
-    // TODO cn it be both host and device?
+// TODO cn it be both host and device?
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceInfoSizeNonZeroTest,
-    testing::ValuesIn(NonZeroMiscProperties),
+    olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NonZeroMiscProperties),
     olGetHostDeviceInfoPropertyTestPrinter);
 
-TEST_P(olGetDeviceInfoSizeEqualTest, Success) {                         
-    size_t Size = 0;                                                           
-    ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
-    ASSERT_EQ(PropertySize, Size);
+TEST_P(olGetDeviceInfoSizeEqualTest, Success) {
+  size_t Size = 0;
+  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
+  ASSERT_EQ(PropertySize, Size);
 }
 
-TEST_P(olGetDeviceInfoSizeNonZeroTest, Success) {                         
-    size_t Size = 0;                                                           
-    ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
-    ASSERT_NE(Size, 0ul);
+TEST_P(olGetDeviceInfoSizeNonZeroTest, Success) {
+  size_t Size = 0;
+  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
+  ASSERT_NE(Size, 0ul);
 }
 
 TEST_P(olGetDeviceInfoSizeTest, SuccessMaxWorkGroupSizePerDimension) {
