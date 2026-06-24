@@ -88,8 +88,6 @@ TEST_P(olGetDeviceHostInfoTest, HostSuccessType) {
   }
 }
 
-
-
 TEST_P(olGetDeviceHostInfoTest, SuccessPlatform) {
   ol_platform_handle_t Platform = nullptr;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
@@ -97,14 +95,22 @@ TEST_P(olGetDeviceHostInfoTest, SuccessPlatform) {
   ASSERT_NE(Platform, nullptr);
 }
 
-TEST_P(olGetDeviceHostInfoTest, SuccessName) {
+
+using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+    olGetDeviceHostInfoNamesTest,
+    testing::ValuesIn(NamesProperties),
+    olGetHostDeviceInfoPropertyTestPrinter);
+
+TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
   size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_NAME, &Size));
+  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, Property, &Size));
   ASSERT_GT(Size, 0ul);
   std::vector<char> Name;
   Name.resize(Size);
   ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, OL_DEVICE_INFO_NAME, Size, Name.data()));
+      olGetDeviceInfo(Device, Property, Size, Name.data()));
   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 }
 
@@ -118,32 +124,12 @@ TEST_P(olGetDeviceHostInfoTest, SuccessName) {
 //   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 // }
 
-TEST_P(olGetDeviceHostInfoTest, SuccessProductName) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(
-      olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> Name;
-  Name.resize(Size);
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
-  ASSERT_EQ(std::strlen(Name.data()), Size - 1);
-}
+/* replaced*/
 
-TEST_P(olGetDeviceHostInfoTest, SuccessUID) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_UID, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> UID;
-  UID.resize(Size);
-  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_UID, Size, UID.data()));
-  ASSERT_EQ(std::strlen(UID.data()), Size - 1);
-}
-
-// // repeated in host
-// TEST_P(olGetDeviceHostnIfoTest, HostProductName) {
+// TEST_P(olGetDeviceHostInfoTest, SuccessProductName) {
 //   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
 //   ASSERT_GT(Size, 0ul);
 //   std::vector<char> Name;
 //   Name.resize(Size);
@@ -152,39 +138,62 @@ TEST_P(olGetDeviceHostInfoTest, SuccessUID) {
 //   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 // }
 
-// repeated in host
-// TEST_P(olGetDeviceInfoTest, HostUID) {
+// TEST_P(olGetDeviceHostInfoTest, SuccessUID) {
 //   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_UID, &Size));
+//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_UID, &Size));
 //   ASSERT_GT(Size, 0ul);
 //   std::vector<char> UID;
 //   UID.resize(Size);
-//   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_UID, Size, UID.data()));
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_UID, Size, UID.data()));
 //   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
 // }
 
-TEST_P(olGetDeviceHostInfoTest, SuccessVendor) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_VENDOR, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> Vendor;
-  Vendor.resize(Size);
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, OL_DEVICE_INFO_VENDOR, Size, Vendor.data()));
-  ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
-}
+// // // repeated in host
+// // TEST_P(olGetDeviceHostnIfoTest, HostProductName) {
+// //   size_t Size = 0;
+// //   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
+// //   ASSERT_GT(Size, 0ul);
+// //   std::vector<char> Name;
+// //   Name.resize(Size);
+// //   ASSERT_SUCCESS(
+// //       olGetDeviceInfo(Device, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
+// //   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
+// // }
 
-TEST_P(olGetDeviceHostInfoTest, SuccessDriverVersion) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(
-      olGetDeviceInfoSize(Device, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> DriverVersion;
-  DriverVersion.resize(Size);
-  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_DRIVER_VERSION, Size,
-                                 DriverVersion.data()));
-  ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
-}
+// // repeated in host
+// // TEST_P(olGetDeviceInfoTest, HostUID) {
+// //   size_t Size = 0;
+// //   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_UID, &Size));
+// //   ASSERT_GT(Size, 0ul);
+// //   std::vector<char> UID;
+// //   UID.resize(Size);
+// //   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_UID, Size, UID.data()));
+// //   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
+// // }
+
+// TEST_P(olGetDeviceHostInfoTest, SuccessVendor) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_VENDOR, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> Vendor;
+//   Vendor.resize(Size);
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfo(Device, OL_DEVICE_INFO_VENDOR, Size, Vendor.data()));
+//   ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
+// }
+
+// TEST_P(olGetDeviceHostInfoTest, SuccessDriverVersion) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfoSize(Device, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> DriverVersion;
+//   DriverVersion.resize(Size);
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_DRIVER_VERSION, Size,
+//                                  DriverVersion.data()));
+//   ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
+// }
+
 
 TEST_P(olGetDeviceInfoTest, SuccessMaxWorkGroupSizePerDimension) {
   ol_dimensions_t Value{0, 0, 0};
