@@ -74,28 +74,28 @@ using olGetHostInfoTest = OffloadTest;
 //   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
 // }
 
-TEST_F(olGetHostInfoTest, SuccessHostVendor) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_VENDOR, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> Vendor;
-  Vendor.resize(Size);
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Host, OL_DEVICE_INFO_VENDOR, Size, Vendor.data()));
-  ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
-}
+// TEST_F(olGetHostInfoTest, SuccessHostVendor) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_VENDOR, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> Vendor;
+//   Vendor.resize(Size);
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfo(Host, OL_DEVICE_INFO_VENDOR, Size, Vendor.data()));
+//   ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
+// }
 
-TEST_F(olGetHostInfoTest, SuccessHostDriverVersion) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(
-      olGetDeviceInfoSize(Host, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> DriverVersion;
-  DriverVersion.resize(Size);
-  ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_DRIVER_VERSION, Size,
-                                 DriverVersion.data()));
-  ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
-}
+// TEST_F(olGetHostInfoTest, SuccessHostDriverVersion) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfoSize(Host, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> DriverVersion;
+//   DriverVersion.resize(Size);
+//   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_DRIVER_VERSION, Size,
+//                                  DriverVersion.data()));
+//   ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
+// }
 
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkGroupSize, uint32_t,
                                   OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE, 0);

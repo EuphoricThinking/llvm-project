@@ -138,30 +138,30 @@ TEST_P(olGetDeviceHostInfoTest, SuccessUID) {
   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
 }
 
-// repeated in host
-TEST_P(olGetDeviceInfoTest, HostProductName) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> Name;
-  Name.resize(Size);
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Host, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
-  ASSERT_EQ(std::strlen(Name.data()), Size - 1);
-}
+// // repeated in host
+// TEST_P(olGetDeviceHostnIfoTest, HostProductName) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> Name;
+//   Name.resize(Size);
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfo(Device, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
+//   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
+// }
 
 // repeated in host
-TEST_P(olGetDeviceInfoTest, HostUID) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_UID, &Size));
-  ASSERT_GT(Size, 0ul);
-  std::vector<char> UID;
-  UID.resize(Size);
-  ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_UID, Size, UID.data()));
-  ASSERT_EQ(std::strlen(UID.data()), Size - 1);
-}
+// TEST_P(olGetDeviceInfoTest, HostUID) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_UID, &Size));
+//   ASSERT_GT(Size, 0ul);
+//   std::vector<char> UID;
+//   UID.resize(Size);
+//   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_UID, Size, UID.data()));
+//   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
+// }
 
-TEST_P(olGetDeviceInfoTest, SuccessVendor) {
+TEST_P(olGetDeviceHostInfoTest, SuccessVendor) {
   size_t Size = 0;
   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_VENDOR, &Size));
   ASSERT_GT(Size, 0ul);
@@ -172,7 +172,7 @@ TEST_P(olGetDeviceInfoTest, SuccessVendor) {
   ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
 }
 
-TEST_P(olGetDeviceInfoTest, SuccessDriverVersion) {
+TEST_P(olGetDeviceHostInfoTest, SuccessDriverVersion) {
   size_t Size = 0;
   ASSERT_SUCCESS(
       olGetDeviceInfoSize(Device, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
