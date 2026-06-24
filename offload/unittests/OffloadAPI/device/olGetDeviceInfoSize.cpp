@@ -28,7 +28,7 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
 
 // TODO cn it be both host and device?
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NonZeroMiscProperties),
+    olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NamesProperties),
     olGetHostDeviceInfoPropertyTestPrinter);
 
 TEST_P(olGetDeviceInfoSizeEqualTest, Success) {

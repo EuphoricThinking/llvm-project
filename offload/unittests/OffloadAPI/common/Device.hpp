@@ -93,8 +93,8 @@ extern PropertyTuples DeviceTypeProperties;
 extern PropertiesSet PropPlatform;
 extern PropertyTuples PlatformProperties;
 
-extern PropertiesSet PropNonZeroMiscellaneous;
-extern PropertyTuples NonZeroMiscProperties;
+extern PropertiesSet PropNames;
+extern PropertyTuples NamesProperties;
 
 extern PropertiesTypes propertiesTypes;
 

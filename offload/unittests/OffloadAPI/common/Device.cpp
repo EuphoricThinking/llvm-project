@@ -44,11 +44,11 @@ PropertiesSet PropPlatform{OL_DEVICE_INFO_PLATFORM};
 PropertyTuples PlatformProperties =
     createPropertyTuples(sizeof(ol_platform_handle_t), PropPlatform);
 
-PropertiesSet PropNonZeroMiscellaneous{
+PropertiesSet PropNames{
     OL_DEVICE_INFO_NAME, OL_DEVICE_INFO_PRODUCT_NAME, OL_DEVICE_INFO_UID,
     OL_DEVICE_INFO_VENDOR, OL_DEVICE_INFO_DRIVER_VERSION};
-PropertyTuples NonZeroMiscProperties =
-    createPropertyTuples(0, PropNonZeroMiscellaneous);
+PropertyTuples NamesProperties =
+    createPropertyTuples(0, PropNames);
 
 PropertiesTypes propertiesTypes =
     createTypesMap({BoolProperties, Uint32Properties, Uint64Properties,

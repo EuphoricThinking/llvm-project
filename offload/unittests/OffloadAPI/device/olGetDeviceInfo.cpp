@@ -88,6 +88,8 @@ TEST_P(olGetDeviceHostInfoTest, HostSuccessType) {
   }
 }
 
+
+
 TEST_P(olGetDeviceHostInfoTest, SuccessPlatform) {
   ol_platform_handle_t Platform = nullptr;
   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
