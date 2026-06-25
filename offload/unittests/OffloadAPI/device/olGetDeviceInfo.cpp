@@ -222,34 +222,34 @@ TEST_P(olGetDeviceHostInfoDimensionsTest, Success) {
 //   ASSERT_GT(Value.z, 0u);
 // }
 
-TEST_P(olGetDeviceInfoTest, InvalidNullHandleDevice) {
+TEST_P(olGetDeviceHostInfoTest, InvalidNullHandleDevice) {
   ol_device_type_t DeviceType;
   ASSERT_ERROR(OL_ERRC_INVALID_NULL_HANDLE,
                olGetDeviceInfo(nullptr, OL_DEVICE_INFO_TYPE,
                                sizeof(ol_device_type_t), &DeviceType));
 }
 
-TEST_P(olGetDeviceInfoTest, InvalidEnumerationInfoType) {
+TEST_P(olGetDeviceHostInfoTest, InvalidEnumerationInfoType) {
   ol_device_type_t DeviceType;
   ASSERT_ERROR(OL_ERRC_INVALID_ENUMERATION,
                olGetDeviceInfo(Device, OL_DEVICE_INFO_FORCE_UINT32,
                                sizeof(ol_device_type_t), &DeviceType));
 }
 
-TEST_P(olGetDeviceInfoTest, InvalidSizePropSize) {
+TEST_P(olGetDeviceHostInfoTest, InvalidPropSize) {
   ol_device_type_t DeviceType;
   ASSERT_ERROR(OL_ERRC_INVALID_SIZE,
                olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE, 0, &DeviceType));
 }
 
-TEST_P(olGetDeviceInfoTest, InvalidSizePropSizeSmall) {
+TEST_P(olGetDeviceHostInfoTest, InvalidPropSizeSmall) {
   ol_device_type_t DeviceType;
   ASSERT_ERROR(OL_ERRC_INVALID_SIZE,
                olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
                                sizeof(DeviceType) - 1, &DeviceType));
 }
 
-TEST_P(olGetDeviceInfoTest, InvalidNullPointerPropValue) {
+TEST_P(olGetDeviceHostInfoTest, InvalidNullPointerPropValue) {
   ol_device_type_t DeviceType;
   ASSERT_ERROR(OL_ERRC_INVALID_NULL_POINTER,
                olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE, sizeof(DeviceType),
