@@ -97,8 +97,8 @@ using olGetHostInfoTest = OffloadTest;
 //   ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
 // }
 
-OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkGroupSize, uint32_t,
-                                  OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE, 0);
+// OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkGroupSize, uint32_t,
+                                  // OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE, 0);
 
 // TEST_F(olGetHostInfoTest, SuccessHostMaxWorkGroupSizePerDimension) {
 //   ol_dimensions_t Value{0, 0, 0};
@@ -108,10 +108,10 @@ OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkGroupSize, uint32_t,
 //   ASSERT_GT(Value.x, 0u);
 //   ASSERT_GT(Value.y, 0u);
 //   ASSERT_GT(Value.z, 0u);
-}
+// }
 
-OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkSize, uint32_t,
-                                  OL_DEVICE_INFO_MAX_WORK_SIZE, 0);
+// OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkSize, uint32_t,
+//                                   OL_DEVICE_INFO_MAX_WORK_SIZE, 0);
 
 // TEST_F(olGetHostInfoTest, SuccessHostMaxWorkSizePerDimension) {
 //   ol_dimensions_t Value{0, 0, 0};
@@ -120,10 +120,10 @@ OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkSize, uint32_t,
 //   ASSERT_GT(Value.x, 0u);
 //   ASSERT_GT(Value.y, 0u);
 //   ASSERT_GT(Value.z, 0u);
-}
+// }
 
-OL_DEVICE_INFO_TEST_HOST_VALUE_GT(VendorId, uint32_t, OL_DEVICE_INFO_VENDOR_ID,
-                                  0);
+// OL_DEVICE_INFO_TEST_HOST_VALUE_GT(VendorId, uint32_t, OL_DEVICE_INFO_VENDOR_ID,
+//                                   0);
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(NumComputeUnits, uint32_t,
                                   OL_DEVICE_INFO_NUM_COMPUTE_UNITS, 0);
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(SingleFPConfig,

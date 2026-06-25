@@ -31,9 +31,12 @@ PropertyTuples NonZeroProperties =
     mergeProperties({relevantGTCapabilitiesProperties,
                      relevantGTUint32Properties, Uint64Properties});
 
-PropertiesSet HostNotMeaningfulGT{
-    OL_DEVICE_INFO_VENDOR_ID, OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
-    OL_DEVICE_INFO_GLOBAL_MEM_SIZE, OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE};
+// PropertiesSet HostNotMeaningfulGT{
+//     // OL_DEVICE_INFO_VENDOR_ID, 
+//     // OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
+//     // OL_DEVICE_INFO_GLOBAL_MEM_SIZE, 
+//     // OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE
+//   };
 
 using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
@@ -64,10 +67,10 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   char Value[MAX_DEVICE_INFO_BYTES] = {};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
-  if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
+  // if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
     // ASSERT_GT(*reinterpret_cast<uint64_t*>(Value), 0ul);
     ASSERT_TRUE(defaultCheckIsNonZero(Value));
-  }
+  // }
 }
 
 using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
