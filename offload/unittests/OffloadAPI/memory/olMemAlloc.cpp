@@ -14,8 +14,8 @@ using olMemAllocTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olMemAllocTest);
 
 // constexpr ol_alloc_type_t AllocTypes[3] = {
-std::vector<ol_alloc_type_t> AllocTypes{
-      OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
+// std::vector<ol_alloc_type_t> AllocTypes{
+//       OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
 
 // inline std::string printerMine(
 //     const ::testing::TestParamInfo<OffloadParam<ol_alloc_type_t>> &info) {
