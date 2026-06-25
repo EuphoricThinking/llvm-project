@@ -9,7 +9,7 @@
 #include <OffloadAPI.h>
 
 // #include "../common/Fixtures.hpp"
-#include "../common/Device.hpp"
+#include "../common/Properties.hpp"
 
 using olGetDeviceInfoSizeTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);

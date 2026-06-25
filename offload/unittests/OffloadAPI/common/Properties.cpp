@@ -1,4 +1,4 @@
-#include "Device.hpp"
+#include "Properties.hpp"
 // #include <OffloadAPI.h>
 
 PropertiesSet PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT,

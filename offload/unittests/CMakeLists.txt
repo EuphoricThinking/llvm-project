@@ -141,7 +141,7 @@ function(add_offload_unittest test_dirname)
 
   add_unittest(OffloadUnitTests "${target_name}"
     ${CMAKE_CURRENT_SOURCE_DIR}/common/Environment.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/Device.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/Properties.cpp
     ${files})
   add_dependencies(${target_name} ${PLUGINS_TEST_COMMON} offload_device_binaries)
   target_compile_definitions(${target_name} PRIVATE DEVICE_CODE_PATH="${OFFLOAD_TEST_DEVICE_CODE_PATH}")
