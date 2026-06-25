@@ -70,32 +70,6 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   }
 }
 
-OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(olGetDeviceHostInfoTest);
-
-// TEST_P(olGetDeviceInfoTest, SuccessType) {
-//   ol_device_type_t DeviceType;
-//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
-//                                  sizeof(ol_device_type_t), &DeviceType));
-// }
-
-TEST_P(olGetDeviceHostInfoTest, HostSuccessType) {
-  ol_device_type_t DeviceType;
-  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
-                                 sizeof(ol_device_type_t), &DeviceType));
-
-  if (isHost()) {
-    ASSERT_EQ(DeviceType, OL_DEVICE_TYPE_HOST);
-  }
-}
-
-TEST_P(olGetDeviceHostInfoTest, SuccessPlatform) {
-  ol_platform_handle_t Platform = nullptr;
-  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
-                                 sizeof(ol_platform_handle_t), &Platform));
-  ASSERT_NE(Platform, nullptr);
-}
-
-
 using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
@@ -221,6 +195,31 @@ TEST_P(olGetDeviceHostInfoDimensionsTest, Success) {
 //   ASSERT_GT(Value.y, 0u);
 //   ASSERT_GT(Value.z, 0u);
 // }
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(olGetDeviceHostInfoTest);
+
+// TEST_P(olGetDeviceInfoTest, SuccessType) {
+//   ol_device_type_t DeviceType;
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
+//                                  sizeof(ol_device_type_t), &DeviceType));
+// }
+
+TEST_P(olGetDeviceHostInfoTest, HostSuccessType) {
+  ol_device_type_t DeviceType;
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
+                                 sizeof(ol_device_type_t), &DeviceType));
+
+  if (isHost()) {
+    ASSERT_EQ(DeviceType, OL_DEVICE_TYPE_HOST);
+  }
+}
+
+TEST_P(olGetDeviceHostInfoTest, SuccessPlatform) {
+  ol_platform_handle_t Platform = nullptr;
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
+                                 sizeof(ol_platform_handle_t), &Platform));
+  ASSERT_NE(Platform, nullptr);
+}
 
 TEST_P(olGetDeviceHostInfoTest, InvalidNullHandleDevice) {
   ol_device_type_t DeviceType;
