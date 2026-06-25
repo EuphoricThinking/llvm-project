@@ -15,11 +15,6 @@ template <typename T> using PropertyTuples = std::vector<PropertyTuple<T>>;
 template <typename T> using PropertiesSet = std::set<T>;
 template <typename T> using PropertiesTypes = std::unordered_map<T, PropertyTuple<T>>;
 
-using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
-using DeviceInfoProp = PropertiesSet<ol_device_info_t>;
-using DeviceInfoProperties = PropertyTuples<ol_device_info_t>;
-using DeviceInfoPropertiesTypes = PropertiesTypes<ol_device_info_t>;
-
 template <typename T>
 inline size_t getSize(PropertyTuple<T> &prop) { return std::get<0>(prop); }
 
@@ -86,6 +81,10 @@ inline bool defaultCheckIsNonZero(char *buffer) {
 // bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
 //   return notMeaningful.find(prop) == notMeaningful.end();
 // }
+using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
+using DeviceInfoProp = PropertiesSet<ol_device_info_t>;
+using DeviceInfoProperties = PropertyTuples<ol_device_info_t>;
+using DeviceInfoPropertiesTypes = PropertiesTypes<ol_device_info_t>;
 
 extern DeviceInfoProp PropBool;
 extern DeviceInfoProperties BoolProperties;
@@ -97,7 +96,7 @@ extern DeviceInfoProp PropUint64;
 extern DeviceInfoProperties Uint64Properties;
 
 extern DeviceInfoProp PropCapabilitiesFlags;
-// sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t)
+// sizeof(ol_device_fp_capability_flags_t) == sizeof(uint32_t)
 extern DeviceInfoProperties CapabilitesFlagsProperties;
 
 extern DeviceInfoProp PropDeviceType;

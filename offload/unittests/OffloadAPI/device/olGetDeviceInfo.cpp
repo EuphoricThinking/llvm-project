@@ -14,20 +14,20 @@
 // using olGetDeviceInfoTest = OffloadDeviceTest;
 // OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 
-PropertyTuples JustSupportedProperties = mergeProperties(
+DeviceInfoProperties JustSupportedProperties = mergeProperties(
     {BoolProperties,
      {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG),
       propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
 
-PropertyTuples relevantGTCapabilitiesProperties =
+DeviceInfoProperties relevantGTCapabilitiesProperties =
     copyRelevantProperties(CapabilitesFlagsProperties,
                            {OL_DEVICE_INFO_HALF_FP_CONFIG}, propertiesTypes);
 
-PropertyTuples relevantGTUint32Properties = copyRelevantProperties(
+DeviceInfoProperties relevantGTUint32Properties = copyRelevantProperties(
     Uint32Properties, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF},
     propertiesTypes);
 
-PropertyTuples NonZeroProperties =
+DeviceInfoProperties NonZeroProperties =
     mergeProperties({relevantGTCapabilitiesProperties,
                      relevantGTUint32Properties, Uint64Properties});
 

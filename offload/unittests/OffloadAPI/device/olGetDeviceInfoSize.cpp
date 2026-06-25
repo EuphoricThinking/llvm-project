@@ -17,7 +17,7 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);
 using olGetDeviceInfoSizeEqualTest = olGetHostDeviceInfoPropertyTest;
 using olGetDeviceInfoSizeNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
-PropertyTuples answerSizeEqualToTypeSizeProperties = mergeProperties(
+DeviceInfoProperties answerSizeEqualToTypeSizeProperties = mergeProperties(
     {Uint32Properties, Uint64Properties, CapabilitesFlagsProperties,
      PlatformProperties, DeviceTypeProperties});
 
