@@ -96,6 +96,10 @@ extern PropertyTuples PlatformProperties;
 extern PropertiesSet PropNames;
 extern PropertyTuples NamesProperties;
 
+extern PropertiesSet PropDimensions;
+extern PropertyTuples DimensionsProperties;
+
+
 extern PropertiesTypes propertiesTypes;
 
 inline std::string olGetHostDeviceInfoPropertyTestPrinter(

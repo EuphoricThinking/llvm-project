@@ -100,26 +100,26 @@ using olGetHostInfoTest = OffloadTest;
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkGroupSize, uint32_t,
                                   OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE, 0);
 
-TEST_F(olGetHostInfoTest, SuccessHostMaxWorkGroupSizePerDimension) {
-  ol_dimensions_t Value{0, 0, 0};
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Host, OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE_PER_DIMENSION,
-                      sizeof(Value), &Value));
-  ASSERT_GT(Value.x, 0u);
-  ASSERT_GT(Value.y, 0u);
-  ASSERT_GT(Value.z, 0u);
+// TEST_F(olGetHostInfoTest, SuccessHostMaxWorkGroupSizePerDimension) {
+//   ol_dimensions_t Value{0, 0, 0};
+//   ASSERT_SUCCESS(
+//       olGetDeviceInfo(Host, OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE_PER_DIMENSION,
+//                       sizeof(Value), &Value));
+//   ASSERT_GT(Value.x, 0u);
+//   ASSERT_GT(Value.y, 0u);
+//   ASSERT_GT(Value.z, 0u);
 }
 
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(MaxWorkSize, uint32_t,
                                   OL_DEVICE_INFO_MAX_WORK_SIZE, 0);
 
-TEST_F(olGetHostInfoTest, SuccessHostMaxWorkSizePerDimension) {
-  ol_dimensions_t Value{0, 0, 0};
-  ASSERT_SUCCESS(olGetDeviceInfo(
-      Host, OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION, sizeof(Value), &Value));
-  ASSERT_GT(Value.x, 0u);
-  ASSERT_GT(Value.y, 0u);
-  ASSERT_GT(Value.z, 0u);
+// TEST_F(olGetHostInfoTest, SuccessHostMaxWorkSizePerDimension) {
+//   ol_dimensions_t Value{0, 0, 0};
+//   ASSERT_SUCCESS(olGetDeviceInfo(
+//       Host, OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION, sizeof(Value), &Value));
+//   ASSERT_GT(Value.x, 0u);
+//   ASSERT_GT(Value.y, 0u);
+//   ASSERT_GT(Value.z, 0u);
 }
 
 OL_DEVICE_INFO_TEST_HOST_VALUE_GT(VendorId, uint32_t, OL_DEVICE_INFO_VENDOR_ID,

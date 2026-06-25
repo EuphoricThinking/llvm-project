@@ -195,25 +195,32 @@ TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
 // }
 
 
-TEST_P(olGetDeviceInfoTest, SuccessMaxWorkGroupSizePerDimension) {
+using olGetDeviceHostInfoDimensionsTest = olGetHostDeviceInfoPropertyTest;
+
+OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
+    olGetDeviceHostInfoDimensionsTest,
+    testing::ValuesIn(DimensionsProperties),
+    olGetHostDeviceInfoPropertyTestPrinter);
+
+TEST_P(olGetDeviceHostInfoDimensionsTest, Success) {
   ol_dimensions_t Value{0, 0, 0};
   ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE_PER_DIMENSION,
+      olGetDeviceInfo(Device, Property,
                       sizeof(Value), &Value));
   ASSERT_GT(Value.x, 0u);
   ASSERT_GT(Value.y, 0u);
   ASSERT_GT(Value.z, 0u);
 }
 
-TEST_P(olGetDeviceInfoTest, SuccessMaxWorkSizePerDimension) {
-  ol_dimensions_t Value{0, 0, 0};
-  ASSERT_SUCCESS(olGetDeviceInfo(Device,
-                                 OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION,
-                                 sizeof(Value), &Value));
-  ASSERT_GT(Value.x, 0u);
-  ASSERT_GT(Value.y, 0u);
-  ASSERT_GT(Value.z, 0u);
-}
+// TEST_P(olGetDeviceInfoTest, SuccessMaxWorkSizePerDimension) {
+//   ol_dimensions_t Value{0, 0, 0};
+//   ASSERT_SUCCESS(olGetDeviceInfo(Device,
+//                                  OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION,
+//                                  sizeof(Value), &Value));
+//   ASSERT_GT(Value.x, 0u);
+//   ASSERT_GT(Value.y, 0u);
+//   ASSERT_GT(Value.z, 0u);
+// }
 
 TEST_P(olGetDeviceInfoTest, InvalidNullHandleDevice) {
   ol_device_type_t DeviceType;

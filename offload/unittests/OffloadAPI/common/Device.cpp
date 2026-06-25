@@ -50,6 +50,9 @@ PropertiesSet PropNames{
 PropertyTuples NamesProperties =
     createPropertyTuples(0, PropNames);
 
+PropertiesSet PropDimensions{OL_DEVICE_INFO_MAX_WORK_GROUP_SIZE_PER_DIMENSION, OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION};
+PropertyTuples DimensionsProperties = createPropertyTuples(sizeof(ol_dimensions_t), PropDimensions);
+
 PropertiesTypes propertiesTypes =
     createTypesMap({BoolProperties, Uint32Properties, Uint64Properties,
                     CapabilitesFlagsProperties});
