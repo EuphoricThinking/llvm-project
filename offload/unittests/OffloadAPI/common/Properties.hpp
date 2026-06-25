@@ -1,27 +1,37 @@
 #pragma once
 
 #include "Fixtures.hpp"
+#include "OffloadAPI.h"
 
 constexpr size_t MAX_DEVICE_INFO_BYTES = 8;
 
 constexpr char zeroArray[MAX_DEVICE_INFO_BYTES] = {};
 
-using PropertiesVec = std::vector<ol_device_info_t>;
-using PropertyTuple = std::tuple<size_t, ol_device_info_t>;
-using PropertyTuples = std::vector<PropertyTuple>;
-using PropertiesSet = std::set<ol_device_info_t>;
-using PropertiesTypes = std::unordered_map<ol_device_info_t, PropertyTuple>;
+// ol_device_info_t
+template <typename T> using PropertiesVec = std::vector<T>;
+template <typename T> using PropertyTuple = std::tuple<size_t, T>;
+template <typename T> using PropertyTuples = std::vector<PropertyTuple<T>>;
 
-inline size_t getSize(PropertyTuple &prop) { return std::get<0>(prop); }
+template <typename T> using PropertiesSet = std::set<T>;
+template <typename T> using PropertiesTypes = std::unordered_map<T, PropertyTuple<T>>;
 
-inline ol_device_info_t getProp(PropertyTuple &prop) {
+using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
+using DeviceInfoProp = PropertiesSet<ol_device_info_t>;
+using DeviceInfoProperties = PropertyTuples<ol_device_info_t>;
+using DeviceInfoPropertiesTypes = PropertiesTypes<ol_device_info_t>;
+
+template <typename T>
+inline size_t getSize(PropertyTuple<T> &prop) { return std::get<0>(prop); }
+
+template <typename T>
+inline ol_device_info_t getProp(PropertyTuple<T> &prop) {
   return std::get<1>(prop);
 }
 
-template <typename Container>
-PropertyTuples createPropertyTuples(size_t PropSize,
-                                    Container SelectedProperties) {
-  PropertyTuples Res;
+template <typename T>
+auto createPropertyTuples(size_t PropSize,
+                                    PropertiesSet<T> SelectedProperties) {
+  PropertyTuples<T> Res;
   for (auto p : SelectedProperties) {
     Res.push_back({PropSize, p});
   }
@@ -29,9 +39,10 @@ PropertyTuples createPropertyTuples(size_t PropSize,
   return Res;
 }
 
+// TODO FIX
 template <typename T>
-PropertyTuples mergeProperties(std::initializer_list<T> properties) {
-  PropertyTuples finalProperties;
+auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties) -> PropertyTuples<T> {
+  PropertyTuples<T> finalProperties;
 
   for (auto prop : properties) {
     finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
@@ -40,10 +51,11 @@ PropertyTuples mergeProperties(std::initializer_list<T> properties) {
   return finalProperties;
 }
 
-PropertyTuples inline copyRelevantProperties(
-    PropertyTuples properties, std::initializer_list<ol_device_info_t> unwanted,
-    PropertiesTypes typesMap) {
-  PropertyTuples res(properties);
+template <typename T>
+PropertyTuples<T> inline copyRelevantProperties(
+    PropertyTuples<T> properties, std::initializer_list<T> unwanted,
+    PropertiesTypes<T> typesMap) {
+  PropertyTuples<T> res(properties);
 
   for (auto prop : unwanted) {
     res.erase(std::find(res.begin(), res.end(), typesMap.at(prop)));
@@ -52,9 +64,10 @@ PropertyTuples inline copyRelevantProperties(
   return res;
 }
 
-PropertiesTypes inline createTypesMap(
-    std::initializer_list<PropertyTuples> properties) {
-  PropertiesTypes Res;
+template <typename T>
+PropertiesTypes<T> inline createTypesMap(
+    std::initializer_list<PropertyTuples<T>> properties) {
+  PropertiesTypes<T> Res;
 
   for (auto container : properties) {
     for (auto prop : container) {
@@ -69,41 +82,41 @@ inline bool defaultCheckIsNonZero(char *buffer) {
   return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
 }
 
-template <typename Container>
-bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
-  return notMeaningful.find(prop) == notMeaningful.end();
-}
+// template <typename Container>
+// bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
+//   return notMeaningful.find(prop) == notMeaningful.end();
+// }
 
-extern PropertiesSet PropBool;
-extern PropertyTuples BoolProperties;
+extern DeviceInfoProp PropBool;
+extern DeviceInfoProperties BoolProperties;
 
-extern PropertiesSet PropUint32;
-extern PropertyTuples Uint32Properties;
+extern DeviceInfoProp PropUint32;
+extern DeviceInfoProperties Uint32Properties;
 
-extern PropertiesSet PropUint64;
-extern PropertyTuples Uint64Properties;
+extern DeviceInfoProp PropUint64;
+extern DeviceInfoProperties Uint64Properties;
 
-extern PropertiesSet PropCapabilitiesFlags;
+extern DeviceInfoProp PropCapabilitiesFlags;
 // sizeof(ol_device_fp_capability_flags_t) == sizegof(uint32_t)
-extern PropertyTuples CapabilitesFlagsProperties;
+extern DeviceInfoProperties CapabilitesFlagsProperties;
 
-extern PropertiesSet PropDeviceType;
-extern PropertyTuples DeviceTypeProperties;
+extern DeviceInfoProp PropDeviceType;
+extern DeviceInfoProperties DeviceTypeProperties;
 
-extern PropertiesSet PropPlatform;
-extern PropertyTuples PlatformProperties;
+extern DeviceInfoProp PropPlatform;
+extern DeviceInfoProperties PlatformProperties;
 
-extern PropertiesSet PropNames;
-extern PropertyTuples NamesProperties;
+extern DeviceInfoProp PropNames;
+extern DeviceInfoProperties NamesProperties;
 
-extern PropertiesSet PropDimensions;
-extern PropertyTuples DimensionsProperties;
+extern DeviceInfoProp PropDimensions;
+extern DeviceInfoProperties DimensionsProperties;
 
 
-extern PropertiesTypes propertiesTypes;
+extern DeviceInfoPropertiesTypes propertiesTypes;
 
 inline std::string olGetHostDeviceInfoPropertyTestPrinter(
-    const ::testing::TestParamInfo<OffloadParam<PropertyTuple>> &info) {
+    const ::testing::TestParamInfo<OffloadParam<PropertyTuple<ol_device_info_t>>> &info) {
   auto device = std::get<0>(info.param);
   auto paramTuple = std::get<1>(info.param);
 
@@ -117,9 +130,9 @@ inline std::string olGetHostDeviceInfoPropertyTestPrinter(
 }
 
 struct olGetHostDeviceInfoPropertyTest
-    : OffloadDeviceTestWithParam<PropertyTuple> {
+    : OffloadDeviceTestWithParam<DeviceInfoTuple> {
   void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple>::SetUp());
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<DeviceInfoTuple>::SetUp());
 
     auto paramTuple = this->getTestParam();
     PropertySize = std::get<0>(paramTuple);
@@ -130,6 +143,8 @@ struct olGetHostDeviceInfoPropertyTest
   ol_device_info_t Property;
 
   bool isHost() { return Host == this->Device; }
+
+
 };
 
 struct olGetHostDeviceInfoTest : OffloadDeviceTest {
