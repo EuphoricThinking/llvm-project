@@ -73,3 +73,12 @@ ol_platform_info_t PlatformInfoNames[3] = {OL_PLATFORM_INFO_NAME, OL_PLATFORM_IN
 // ol_alloc_type_t
 ol_alloc_type_t AllocTypes[3] = {
       OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
+
+// ol_mem_info_t
+MemInfoProp PropMemInfo{OL_MEM_INFO_DEVICE, OL_MEM_INFO_BASE, OL_MEM_INFO_SIZE, OL_MEM_INFO_TYPE};
+MemInfoProperties MemInfoSizeProperties{
+    {sizeof(ol_device_handle_t), OL_MEM_INFO_DEVICE},
+    {sizeof(void *), OL_MEM_INFO_BASE},
+    {sizeof(size_t), OL_MEM_INFO_SIZE},
+    {sizeof(ol_alloc_type_t), OL_MEM_INFO_TYPE}
+};

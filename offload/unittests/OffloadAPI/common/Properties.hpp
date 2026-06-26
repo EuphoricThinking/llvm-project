@@ -195,4 +195,9 @@ extern ol_platform_info_t PlatformInfoNames[3];
 extern ol_alloc_type_t AllocTypes[3];
 
 // ol_mem_info_t
+using MemInfoTuple = PropertyTuple<ol_mem_info_t>;
+using MemInfoProp = PropertiesSet<ol_mem_info_t>;
+using MemInfoProperties = PropertyTuples<ol_mem_info_t>;
 
+extern MemInfoProp PropMemInfo;
+extern MemInfoProperties MemInfoSizeProperties;
