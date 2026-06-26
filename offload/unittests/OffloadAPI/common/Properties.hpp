@@ -140,7 +140,7 @@ struct olPropertyTest : OffloadDeviceTestWithParam<PropertyTuple<T>> {
   }
 
   size_t PropertySize = 0;
-  ol_device_info_t Property;
+  T Property;
 };
 
 // struct olGetHostDeviceInfoPropertyTest
