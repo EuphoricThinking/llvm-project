@@ -8,30 +8,33 @@
 
 #include <OffloadAPI.h>
 
-#include "../common/Fixtures.hpp"
+#include "../common/Properties.hpp"
 
 using olGetPlatformInfoSizeTest = OffloadPlatformTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetPlatformInfoSizeTest);
 
-TEST_P(olGetPlatformInfoSizeTest, SuccessName) {
+using olGetPlatformInfoSizeNameTest = OffloadPlatformTestWithParam<ol_platform_info_t>;
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetPlatformInfoSizeNameTest, testing::ValuesIn(PlatformInfoNames), defaultPrinterWithParam<ol_platform_info_t>);
+
+TEST_P(olGetPlatformInfoSizeNameTest, Success) {
   size_t Size = 0;
-  ASSERT_SUCCESS(olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_NAME, &Size));
+  ASSERT_SUCCESS(olGetPlatformInfoSize(Platform, getTestParam(), &Size));
   ASSERT_NE(Size, 0ul);
 }
 
-TEST_P(olGetPlatformInfoSizeTest, SuccessVendorName) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(
-      olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VENDOR_NAME, &Size));
-  ASSERT_NE(Size, 0ul);
-}
+// TEST_P(olGetPlatformInfoSizeTest, SuccessVendorName) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(
+//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VENDOR_NAME, &Size));
+//   ASSERT_NE(Size, 0ul);
+// }
 
-TEST_P(olGetPlatformInfoSizeTest, SuccessVersion) {
-  size_t Size = 0;
-  ASSERT_SUCCESS(
-      olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VERSION, &Size));
-  ASSERT_NE(Size, 0ul);
-}
+// TEST_P(olGetPlatformInfoSizeTest, SuccessVersion) {
+//   size_t Size = 0;
+//   ASSERT_SUCCESS(
+//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VERSION, &Size));
+//   ASSERT_NE(Size, 0ul);
+// }
 
 TEST_P(olGetPlatformInfoSizeTest, SuccessBackend) {
   size_t Size = 0;

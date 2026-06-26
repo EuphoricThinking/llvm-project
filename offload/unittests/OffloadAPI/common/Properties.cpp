@@ -65,3 +65,6 @@ SymbolInfoProperties SymbolGlobalProperties{
 {sizeof(void *), OL_SYMBOL_INFO_GLOBAL_VARIABLE_ADDRESS},
 {sizeof(size_t), OL_SYMBOL_INFO_GLOBAL_VARIABLE_SIZE}
 };
+
+// ol_platform_info_t
+PlatformInfoVec PlatformInfoNames{OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};

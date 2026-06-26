@@ -259,6 +259,19 @@ struct OffloadPlatformTest : OffloadDeviceTest {
   ol_platform_handle_t Platform = nullptr;
 };
 
+template <typename T>
+struct OffloadPlatformTestWithParam : OffloadDeviceTestWithParam<T> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::SetUp());
+
+    ASSERT_SUCCESS(olGetDeviceInfo(this->Device, OL_DEVICE_INFO_PLATFORM,
+                                   sizeof(Platform), &Platform));
+    ASSERT_NE(Platform, nullptr);
+  }
+
+  ol_platform_handle_t Platform = nullptr;
+};
+
 // Fixture for a generic program test. If you want a different program, use
 // offloadQueueTest and create your own program handle with the binary you want.
 struct OffloadProgramTest : OffloadDeviceTest {
