@@ -1,6 +1,7 @@
 #include "Properties.hpp"
 // #include <OffloadAPI.h>
 
+// ol_device_info_t
 DeviceInfoProp PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT,
                        OL_DEVICE_INFO_DOUBLE_FP_SUPPORT,
                        OL_DEVICE_INFO_HALF_FP_SUPPORT};
@@ -56,3 +57,11 @@ DeviceInfoProperties DimensionsProperties = createPropertyTuples(sizeof(ol_dimen
 DeviceInfoPropertiesTypes propertiesTypes =
     createTypesMap({BoolProperties, Uint32Properties, Uint64Properties,
                     CapabilitesFlagsProperties});
+
+// ol_symbol_info_t
+SymbolInfoProp PropSymbolInfoGlobal{OL_SYMBOL_INFO_KIND, OL_SYMBOL_INFO_GLOBAL_VARIABLE_ADDRESS, OL_SYMBOL_INFO_GLOBAL_VARIABLE_SIZE};
+SymbolInfoProperties SymbolGlobalProperties{
+{sizeof(ol_symbol_kind_t), OL_SYMBOL_INFO_KIND},
+{sizeof(void *), OL_SYMBOL_INFO_GLOBAL_VARIABLE_ADDRESS},
+{sizeof(size_t), OL_SYMBOL_INFO_GLOBAL_VARIABLE_SIZE}
+};

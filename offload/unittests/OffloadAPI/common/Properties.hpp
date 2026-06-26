@@ -158,3 +158,5 @@ using SymbolInfoTuple = PropertyTuple<ol_symbol_info_t>;
 using SymbolInfoProp = PropertiesSet<ol_symbol_info_t>;
 using SymbolInfoProperties = PropertyTuples<ol_symbol_info_t>;
 
+extern SymbolInfoProp PropSymbolInfoGlobal;
+extern SymbolInfoProperties SymbolGlobalProperties;
