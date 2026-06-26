@@ -7,7 +7,6 @@ constexpr size_t MAX_DEVICE_INFO_BYTES = 8;
 
 constexpr char zeroArray[MAX_DEVICE_INFO_BYTES] = {};
 
-// ol_device_info_t
 template <typename T> using PropertiesVec = std::vector<T>;
 template <typename T> using PropertyTuple = std::tuple<size_t, T>;
 template <typename T> using PropertyTuples = std::vector<PropertyTuple<T>>;
