@@ -130,10 +130,10 @@ inline std::string defaultPropertyTestPrinter(
   return SanitizeString(finalName.str());
 }
 
-struct olGetHostDeviceInfoPropertyTest
-    : OffloadDeviceTestWithParam<DeviceInfoTuple> {
+template <typename T> 
+struct olPropertyTest : OffloadDeviceTestWithParam<PropertyTuple<T>> {
   void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<DeviceInfoTuple>::SetUp());
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple<T>>::SetUp());
 
     auto paramTuple = this->getTestParam();
     PropertySize = std::get<0>(paramTuple);
@@ -142,10 +142,22 @@ struct olGetHostDeviceInfoPropertyTest
 
   size_t PropertySize = 0;
   ol_device_info_t Property;
+};
 
+// struct olGetHostDeviceInfoPropertyTest
+//     : OffloadDeviceTestWithParam<DeviceInfoTuple> {
+//   void SetUp() override {
+//     RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<DeviceInfoTuple>::SetUp());
+
+//     auto paramTuple = this->getTestParam();
+//     PropertySize = std::get<0>(paramTuple);
+//     Property = std::get<1>(paramTuple);
+//   }
+
+//   size_t PropertySize = 0;
+//   ol_device_info_t Property;
+struct olGetHostDeviceInfoPropertyTest : olPropertyTest<ol_device_info_t> {
   bool isHost() { return Host == this->Device; }
-
-
 };
 
 struct olGetHostDeviceInfoTest : OffloadDeviceTest {
@@ -161,3 +173,16 @@ using SymbolInfoProperties = PropertyTuples<ol_symbol_info_t>;
 
 extern SymbolInfoProp PropSymbolInfoGlobal;
 extern SymbolInfoProperties SymbolGlobalProperties;
+
+struct olGetSymbolInfoSizeGlobalTest : OffloadGlobalTestWithParam<SymbolInfoTuple> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadGlobalTestWithParam<SymbolInfoTuple>::SetUp());
+
+    auto paramTuple = this->getTestParam();
+    PropertySize = std::get<0>(paramTuple);
+    Property = std::get<1>(paramTuple);
+  }
+
+  size_t PropertySize = 0;
+  ol_symbol_info_t Property;
+};
