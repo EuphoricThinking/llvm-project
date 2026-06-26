@@ -115,8 +115,9 @@ inline bool defaultCheckIsNonZero(char *buffer) {
   return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
 }
 
-inline std::string olGetHostDeviceInfoPropertyTestPrinter(
-    const ::testing::TestParamInfo<OffloadParam<PropertyTuple<ol_device_info_t>>> &info) {
+template <typename T>
+inline std::string defaultPropertyTestPrinter(
+    const ::testing::TestParamInfo<OffloadParam<PropertyTuple<T>>> &info) {
   auto device = std::get<0>(info.param);
   auto paramTuple = std::get<1>(info.param);
 

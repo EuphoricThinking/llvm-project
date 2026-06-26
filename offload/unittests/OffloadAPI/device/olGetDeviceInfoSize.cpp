@@ -24,12 +24,12 @@ DeviceInfoProperties answerSizeEqualToTypeSizeProperties = mergeProperties(
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeEqualTest,
     testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 // TODO cn it be both host and device?
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NamesProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetDeviceInfoSizeEqualTest, Success) {
   size_t Size = 0;

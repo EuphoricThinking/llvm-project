@@ -44,12 +44,12 @@ using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
     olGetHostDeviceInfoPropertySupportTest,
     testing::ValuesIn(JustSupportedProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
     olGetHostDeviceInfoPropertyNonZeroTest,
     testing::ValuesIn(NonZeroProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 // those without gt
 TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
@@ -78,7 +78,7 @@ using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceHostInfoNamesTest,
     testing::ValuesIn(NamesProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
   size_t Size = 0;
@@ -177,7 +177,7 @@ using olGetHostDeviceInfoDimensionsTest = olGetHostDeviceInfoPropertyTest;
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
     olGetHostDeviceInfoDimensionsTest,
     testing::ValuesIn(DimensionsProperties),
-    olGetHostDeviceInfoPropertyTestPrinter);
+    defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetHostDeviceInfoDimensionsTest, Success) {
   ol_dimensions_t Value{0, 0, 0};
