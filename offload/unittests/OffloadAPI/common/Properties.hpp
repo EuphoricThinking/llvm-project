@@ -73,14 +73,12 @@ PropertiesTypes<T> inline createTypesMap(
   return Res;
 }
 
-inline bool defaultCheckIsNonZero(char *buffer) {
-  return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
-}
-
 // template <typename Container>
 // bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
 //   return notMeaningful.find(prop) == notMeaningful.end();
 // }
+
+// ol_device_info_t
 using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
 using DeviceInfoProp = PropertiesSet<ol_device_info_t>;
 using DeviceInfoProperties = PropertyTuples<ol_device_info_t>;
@@ -111,8 +109,11 @@ extern DeviceInfoProperties NamesProperties;
 extern DeviceInfoProp PropDimensions;
 extern DeviceInfoProperties DimensionsProperties;
 
-
 extern DeviceInfoPropertiesTypes propertiesTypes;
+
+inline bool defaultCheckIsNonZero(char *buffer) {
+  return memcmp(buffer, zeroArray, MAX_DEVICE_INFO_BYTES) != 0;
+}
 
 inline std::string olGetHostDeviceInfoPropertyTestPrinter(
     const ::testing::TestParamInfo<OffloadParam<PropertyTuple<ol_device_info_t>>> &info) {
@@ -151,3 +152,9 @@ struct olGetHostDeviceInfoTest : OffloadDeviceTest {
 
   bool isHost() { return Host == this->Device; }
 };
+
+// ol_symbol_info
+using SymbolInfoTuple = PropertyTuple<ol_symbol_info_t>;
+using SymbolInfoProp = PropertiesSet<ol_symbol_info_t>;
+using SymbolInfoProperties = PropertyTuples<ol_symbol_info_t>;
+

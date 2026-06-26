@@ -284,6 +284,30 @@ struct OffloadProgramTest : OffloadDeviceTest {
   std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
 };
 
+template <typename T>
+struct OffloadProgramTestWithParam : OffloadDeviceTestWithParam<T> {
+  void SetUp() override { SetUpWith("foo"); }
+
+  void SetUpWith(const char *ProgramName) {
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::SetUp());
+    ASSERT_TRUE(
+        TestEnvironment::loadDeviceBinary(ProgramName, this->Device, DeviceBin));
+    ASSERT_GE(DeviceBin->getBufferSize(), 0lu);
+    ASSERT_SUCCESS(olCreateProgram(this->Device, DeviceBin->getBufferStart(),
+                                   DeviceBin->getBufferSize(), &Program));
+  }
+
+  void TearDown() override {
+    if (Program) {
+      olDestroyProgram(Program);
+    }
+    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::TearDown());
+  }
+
+  ol_program_handle_t Program = nullptr;
+  std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
+};
+
 struct OffloadKernelTest : OffloadProgramTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadProgramTest::SetUp());
@@ -306,6 +330,21 @@ struct OffloadGlobalTest : OffloadProgramTest {
 
   void TearDown() override {
     RETURN_ON_FATAL_FAILURE(OffloadProgramTest::TearDown());
+  }
+
+  ol_symbol_handle_t Global = nullptr;
+};
+
+template <typename T>
+struct OffloadGlobalTestWithParam : OffloadProgramTestWithParam<T> {
+  void SetUp() override {
+    RETURN_ON_FATAL_FAILURE(OffloadProgramTestWithParam<T>::SetUpWith("global"));
+    ASSERT_SUCCESS(olGetSymbol(this->Program, "global",
+                               OL_SYMBOL_KIND_GLOBAL_VARIABLE, &Global));
+  }
+
+  void TearDown() override {
+    RETURN_ON_FATAL_FAILURE(OffloadProgramTestWithParam<T>::TearDown());
   }
 
   ol_symbol_handle_t Global = nullptr;
