@@ -31,7 +31,7 @@ struct olGetMemInfoSizeTypesTest : olPropertyTest<ol_mem_info_t> {
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetMemInfoSizeTypesTest, testing::ValuesIn(MemInfoSizeProperties), defaultPropertyTestPrinter<ol_mem_info_t>);
 
 struct olGetMemInfoSizeTest : OffloadDeviceTest {
-  void* Ptr = reinterpret_cast<void*>(0x1234);
+  void* DummyPtr = reinterpret_cast<void*>(0x1234);
 };
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetMemInfoSizeTest);
@@ -63,10 +63,10 @@ TEST_P(olGetMemInfoSizeTypesTest, Success) {
 TEST_P(olGetMemInfoSizeTest, InvalidSymbolInfoEnumeration) {
   size_t Size = 0;
   ASSERT_ERROR(OL_ERRC_INVALID_ENUMERATION,
-               olGetMemInfoSize(Ptr, OL_MEM_INFO_FORCE_UINT32, &Size));
+               olGetMemInfoSize(DummyPtr, OL_MEM_INFO_FORCE_UINT32, &Size));
 }
 
 TEST_P(olGetMemInfoSizeTest, InvalidNullPointer) {
   ASSERT_ERROR(OL_ERRC_INVALID_NULL_POINTER,
-               olGetMemInfoSize(Ptr, OL_MEM_INFO_DEVICE, nullptr));
+               olGetMemInfoSize(DummyPtr, OL_MEM_INFO_DEVICE, nullptr));
 }
