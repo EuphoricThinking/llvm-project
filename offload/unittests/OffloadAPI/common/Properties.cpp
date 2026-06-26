@@ -67,7 +67,8 @@ SymbolInfoProperties SymbolGlobalProperties{
 };
 
 // ol_platform_info_t
-PlatformInfoVec PlatformInfoNames{OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
+// PlatformInfoVec PlatformInfoNames{OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
+ol_platform_info_t PlatformInfoNames[3] = {OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
 
 // ol_alloc_type_t
 ol_alloc_type_t AllocTypes[3] = {

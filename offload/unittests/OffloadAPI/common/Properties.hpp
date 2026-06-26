@@ -187,8 +187,12 @@ struct olGetSymbolInfoSizeGlobalTest : OffloadGlobalTestWithParam<SymbolInfoTupl
 };
 
 // ol_platform_info_t
-using PlatformInfoVec = std::vector<ol_platform_info_t>;
-extern PlatformInfoVec PlatformInfoNames;
+// using PlatformInfoVec = std::vector<ol_platform_info_t>;
+// extern PlatformInfoVec PlatformInfoNames;
+extern ol_platform_info_t PlatformInfoNames[3];
 
 // ol_alloc_type_t
 extern ol_alloc_type_t AllocTypes[3];
+
+// ol_mem_info_t
+
