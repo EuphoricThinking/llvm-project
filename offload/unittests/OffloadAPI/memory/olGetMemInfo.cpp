@@ -6,7 +6,7 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include "../common/Fixtures.hpp"
+#include "../common/Properties.hpp"
 #include <OffloadAPI.h>
 #include <gtest/gtest.h>
 

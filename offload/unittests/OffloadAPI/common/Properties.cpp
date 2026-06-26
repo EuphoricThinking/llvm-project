@@ -68,3 +68,7 @@ SymbolInfoProperties SymbolGlobalProperties{
 
 // ol_platform_info_t
 PlatformInfoVec PlatformInfoNames{OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
+
+// ol_alloc_type_t
+ol_alloc_type_t AllocTypes[3] = {
+      OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};

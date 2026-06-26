@@ -472,9 +472,6 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   return SanitizeString(info.param.Name);
 }
 
-inline ol_alloc_type_t AllocTypes[3] = {
-      OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
-
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
 // a device will be silently skipped.
