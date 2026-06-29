@@ -14,7 +14,7 @@ using olGetPlatformInfoSizeTest = OffloadPlatformTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetPlatformInfoSizeTest);
 
 using olGetPlatformInfoSizeNameTest = OffloadPlatformTestWithParam<ol_platform_info_t>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetPlatformInfoSizeNameTest, testing::ValuesIn(PlatformInfoNames), defaultPrinterWithParam<ol_platform_info_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetPlatformInfoSizeNameTest, PlatformInfoNames, defaultPrinterWithParam<ol_platform_info_t>);
 
 TEST_P(olGetPlatformInfoSizeNameTest, Success) {
   size_t Size = 0;

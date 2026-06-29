@@ -469,7 +469,7 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
-                       VALUES),                                                \
+                       ::testing::ValuesIn(VALUES)),                                                \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
@@ -478,7 +478,7 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
-                       VALUES),                                                \
+                       ::testing::ValuesIn(VALUES)),                                                \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
@@ -486,7 +486,7 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
     FIXTURE, VALUES, PRINTER)                                                  \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(::testing::ValuesIn(getDevicesAndHost()), VALUES),      \
+      testing::Combine(::testing::ValuesIn(getDevicesAndHost()), ::testing::ValuesIn(VALUES)),      \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 

@@ -40,7 +40,7 @@ struct olGetMemInfoTest : OffloadDeviceTest {
   void *Ptr;
 };
 
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetMemInfoAllocTypeTest, testing::ValuesIn(AllocTypes), defaultPrinterWithParam<ol_alloc_type_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetMemInfoAllocTypeTest, AllocTypes, defaultPrinterWithParam<ol_alloc_type_t>);
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetMemInfoTest);
 
 TEST_P(olGetMemInfoAllocTypeTest, SuccessDevice) {

@@ -14,7 +14,7 @@ using olMemAllocTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olMemAllocTest);
 
 using olMemAllocAllocTypesTest = OffloadDeviceTestWithParam<ol_alloc_type_t>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAllocTypesTest, testing::ValuesIn(AllocTypes), defaultPrinterWithParam<ol_alloc_type_t>); //printerMine);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAllocTypesTest, AllocTypes, defaultPrinterWithParam<ol_alloc_type_t>); //printerMine);
 
 TEST_P(olMemAllocAllocTypesTest, Success) {
   void *Alloc = nullptr;

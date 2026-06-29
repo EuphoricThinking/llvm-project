@@ -14,7 +14,7 @@ using olMemAllocAlignedTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olMemAllocAlignedTest);
 
 using olMemAllocAlignedTypesTest = OffloadDeviceTestWithParam<ol_alloc_type_t>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAlignedTypesTest, testing::ValuesIn(AllocTypes), defaultPrinterWithParam<ol_alloc_type_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAlignedTypesTest, AllocTypes, defaultPrinterWithParam<ol_alloc_type_t>);
 
 constexpr size_t DefaultAlignment = 16;
 constexpr size_t TestAllocsNum = 1000;

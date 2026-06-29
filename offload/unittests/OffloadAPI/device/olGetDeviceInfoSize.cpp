@@ -21,11 +21,11 @@ DeviceInfoProperties answerSizeEqualToTypeSizeProperties = mergeProperties(
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeEqualTest,
-    testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
+answerSizeEqualToTypeSizeProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NamesProperties),
+    olGetDeviceInfoSizeNonZeroTest, NamesProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetDeviceInfoSizeEqualTest, Success) {

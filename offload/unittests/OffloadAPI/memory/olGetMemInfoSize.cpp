@@ -27,7 +27,7 @@ struct olGetMemInfoSizeTypesTest : olPropertyTest<ol_mem_info_t> {
   void *Ptr;
 };
 
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetMemInfoSizeTypesTest, testing::ValuesIn(MemInfoSizeProperties), defaultPropertyTestPrinter<ol_mem_info_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetMemInfoSizeTypesTest, MemInfoSizeProperties, defaultPropertyTestPrinter<ol_mem_info_t>);
 
 struct olGetMemInfoSizeTest : OffloadDeviceTest {
   void *OffsetPtr() { return &reinterpret_cast<char *>(Ptr)[123]; }
