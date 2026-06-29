@@ -13,23 +13,6 @@
 using olMemAllocTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olMemAllocTest);
 
-// constexpr ol_alloc_type_t AllocTypes[3] = {
-// std::vector<ol_alloc_type_t> AllocTypes{
-//       OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
-
-// inline std::string printerMine(
-//     const ::testing::TestParamInfo<OffloadParam<ol_alloc_type_t>> &info) {
-//   auto device = std::get<0>(info.param);
-//   auto param = std::get<1>(info.param);
-
-//   std::string ss;
-//   llvm::raw_string_ostream finalName(ss);
-
-//   finalName << device.Name << "__" << param;
-
-//   return SanitizeString(finalName.str());
-// }
-
 using olMemAllocAllocTypesTest = OffloadDeviceTestWithParam<ol_alloc_type_t>;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAllocTypesTest, testing::ValuesIn(AllocTypes), defaultPrinterWithParam<ol_alloc_type_t>); //printerMine);
 
@@ -40,26 +23,9 @@ TEST_P(olMemAllocAllocTypesTest, Success) {
   olMemFree(Alloc);
 }
 
-// TEST_P(olMemAllocTest, SuccessAllocHost) {
-//   void *Alloc = nullptr;
-//   ASSERT_SUCCESS(olMemAlloc(Device, OL_ALLOC_TYPE_HOST, 1024, &Alloc));
-//   ASSERT_NE(Alloc, nullptr);
-//   olMemFree(Alloc);
-// }
-
-// TEST_P(olMemAllocTest, SuccessAllocDevice) {
-//   void *Alloc = nullptr;
-//   ASSERT_SUCCESS(olMemAlloc(Device, OL_ALLOC_TYPE_DEVICE, 1024, &Alloc));
-//   ASSERT_NE(Alloc, nullptr);
-//   olMemFree(Alloc);
-// }
-
 TEST_P(olMemAllocTest, SuccessAllocMany) {
   std::vector<void *> Allocs;
   Allocs.reserve(1000);
-
-  // constexpr ol_alloc_type_t TYPES[3] = {
-  //     OL_ALLOC_TYPE_DEVICE, OL_ALLOC_TYPE_MANAGED, OL_ALLOC_TYPE_HOST};
 
   for (size_t I = 1; I < 1000; I++) {
     void *Alloc = nullptr;

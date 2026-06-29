@@ -22,20 +22,6 @@ TEST_P(olGetPlatformInfoSizeNameTest, Success) {
   ASSERT_NE(Size, 0ul);
 }
 
-// TEST_P(olGetPlatformInfoSizeTest, SuccessVendorName) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VENDOR_NAME, &Size));
-//   ASSERT_NE(Size, 0ul);
-// }
-
-// TEST_P(olGetPlatformInfoSizeTest, SuccessVersion) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VERSION, &Size));
-//   ASSERT_NE(Size, 0ul);
-// }
-
 TEST_P(olGetPlatformInfoSizeTest, SuccessBackend) {
   size_t Size = 0;
   ASSERT_SUCCESS(

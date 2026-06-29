@@ -7,7 +7,6 @@ add_offload_unittest("device"
     device/olIterateDevices.cpp
     device/olGetDeviceInfo.cpp
     device/olGetDeviceInfoSize.cpp)
-    # device/olGetHostInfo.cpp)
 
 add_offload_unittest("event"
     event/olCreateEvent.cpp

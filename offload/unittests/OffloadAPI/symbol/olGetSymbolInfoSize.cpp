@@ -13,10 +13,6 @@
 using olGetSymbolInfoSizeKernelTest = OffloadKernelTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetSymbolInfoSizeKernelTest);
 
-// using olGetSymbolInfoSizeGlobalTest = OffloadGlobalTestWithParam<SymbolInfoTuple>;
-
-// using olGetSymbolInfoSizeGlobalTest = olPropertyTest<ol_symbol_info_t>;
-
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetSymbolInfoSizeGlobalTest, testing::ValuesIn(SymbolGlobalProperties), defaultPropertyTestPrinter<ol_symbol_info_t>);
 
 TEST_P(olGetSymbolInfoSizeKernelTest, SuccessPropertySize) {
@@ -30,20 +26,6 @@ TEST_P(olGetSymbolInfoSizeGlobalTest, SuccessPropertySize) {
   ASSERT_SUCCESS(olGetSymbolInfoSize(Global, Property, &Size));
   ASSERT_EQ(Size, PropertySize);
 }
-
-// TEST_P(olGetSymbolInfoSizeGlobalTest, SuccessAddress) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetSymbolInfoSize(
-//       Global, OL_SYMBOL_INFO_GLOBAL_VARIABLE_ADDRESS, &Size));
-//   ASSERT_EQ(Size, sizeof(void *));
-// }
-
-// TEST_P(olGetSymbolInfoSizeGlobalTest, SuccessSize) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetSymbolInfoSize(Global, OL_SYMBOL_INFO_GLOBAL_VARIABLE_SIZE, &Size));
-//   ASSERT_EQ(Size, sizeof(size_t));
-// }
 
 TEST_P(olGetSymbolInfoSizeKernelTest, InvalidNullHandle) {
   size_t Size = 0;

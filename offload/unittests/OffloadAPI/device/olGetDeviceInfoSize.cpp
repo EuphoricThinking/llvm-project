@@ -7,8 +7,6 @@
 //===----------------------------------------------------------------------===//
 
 #include <OffloadAPI.h>
-
-// #include "../common/Fixtures.hpp"
 #include "../common/Properties.hpp"
 
 using olGetDeviceInfoSizeTest = OffloadDeviceTest;
@@ -26,7 +24,6 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     testing::ValuesIn(answerSizeEqualToTypeSizeProperties),
     defaultPropertyTestPrinter<ol_device_info_t>);
 
-// TODO cn it be both host and device?
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     olGetDeviceInfoSizeNonZeroTest, testing::ValuesIn(NamesProperties),
     defaultPropertyTestPrinter<ol_device_info_t>);

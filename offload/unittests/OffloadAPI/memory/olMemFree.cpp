@@ -22,18 +22,6 @@ TEST_P(olMemFreeAllocTypesTest, Success) {
   ASSERT_SUCCESS(olMemFree(Alloc));
 }
 
-// TEST_P(olMemFreeTest, SuccessFreeHost) {
-//   void *Alloc = nullptr;
-//   ASSERT_SUCCESS(olMemAlloc(Device, OL_ALLOC_TYPE_HOST, 1024, &Alloc));
-//   ASSERT_SUCCESS(olMemFree(Alloc));
-// }
-
-// TEST_P(olMemFreeTest, SuccessFreeDevice) {
-//   void *Alloc = nullptr;
-//   ASSERT_SUCCESS(olMemAlloc(Device, OL_ALLOC_TYPE_DEVICE, 1024, &Alloc));
-//   ASSERT_SUCCESS(olMemFree(Alloc));
-// }
-
 TEST_P(olMemFreeTest, InvalidNullPtr) {
   void *Alloc = nullptr;
   ASSERT_SUCCESS(olMemAlloc(Device, OL_ALLOC_TYPE_DEVICE, 1024, &Alloc));

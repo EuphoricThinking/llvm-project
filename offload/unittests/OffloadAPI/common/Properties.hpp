@@ -33,7 +33,6 @@ auto createPropertyTuples(size_t PropSize,
   return Res;
 }
 
-// TODO FIX
 template <typename T>
 auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties) -> PropertyTuples<T> {
   PropertyTuples<T> finalProperties;
@@ -71,11 +70,6 @@ PropertiesTypes<T> inline createTypesMap(
 
   return Res;
 }
-
-// template <typename Container>
-// bool isMeaningfulForHost(ol_device_info_t prop, Container notMeaningful) {
-//   return notMeaningful.find(prop) == notMeaningful.end();
-// }
 
 // ol_device_info_t
 using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
@@ -143,18 +137,6 @@ struct olPropertyTest : OffloadDeviceTestWithParam<PropertyTuple<T>> {
   T Property;
 };
 
-// struct olGetHostDeviceInfoPropertyTest
-//     : OffloadDeviceTestWithParam<DeviceInfoTuple> {
-//   void SetUp() override {
-//     RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<DeviceInfoTuple>::SetUp());
-
-//     auto paramTuple = this->getTestParam();
-//     PropertySize = std::get<0>(paramTuple);
-//     Property = std::get<1>(paramTuple);
-//   }
-
-//   size_t PropertySize = 0;
-//   ol_device_info_t Property;
 struct olGetHostDeviceInfoPropertyTest : olPropertyTest<ol_device_info_t> {
   bool isHost() { return Host == this->Device; }
 };
@@ -187,8 +169,6 @@ struct olGetSymbolInfoSizeGlobalTest : OffloadGlobalTestWithParam<SymbolInfoTupl
 };
 
 // ol_platform_info_t
-// using PlatformInfoVec = std::vector<ol_platform_info_t>;
-// extern PlatformInfoVec PlatformInfoNames;
 extern ol_platform_info_t PlatformInfoNames[3];
 
 // ol_alloc_type_t

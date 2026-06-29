@@ -10,7 +10,6 @@
 
 #include "../common/Properties.hpp"
 
-// struct olGetMemInfoSizeTest : OffloadDeviceTest {
 
 struct olGetMemInfoSizeTypesTest : olPropertyTest<ol_mem_info_t> {
   void *OffsetPtr() { return &reinterpret_cast<char *>(Ptr)[123]; }
@@ -53,24 +52,6 @@ TEST_P(olGetMemInfoSizeTypesTest, Success) {
   ASSERT_SUCCESS(olGetMemInfoSize(Ptr, Property, &Size));
   ASSERT_EQ(Size, PropertySize);
 }
-
-// TEST_P(olGetMemInfoSizeTest, SuccessBase) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetMemInfoSize(Ptr, OL_MEM_INFO_BASE, &Size));
-//   ASSERT_EQ(Size, sizeof(void *));
-// }
-
-// TEST_P(olGetMemInfoSizeTest, SuccessSize) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetMemInfoSize(Ptr, OL_MEM_INFO_SIZE, &Size));
-//   ASSERT_EQ(Size, sizeof(size_t));
-// }
-
-// TEST_P(olGetMemInfoSizeTest, SuccessType) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetMemInfoSize(Ptr, OL_MEM_INFO_TYPE, &Size));
-//   ASSERT_EQ(Size, sizeof(ol_alloc_type_t));
-// }
 
 TEST_P(olGetMemInfoSizeTest, InvalidSymbolInfoEnumeration) {
   size_t Size = 0;

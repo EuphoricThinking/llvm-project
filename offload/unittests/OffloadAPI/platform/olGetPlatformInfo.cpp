@@ -16,7 +16,6 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetPlatformInfoTest);
 using olGetPlatformInfoNamesTest = OffloadPlatformTestWithParam<ol_platform_info_t>;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetPlatformInfoNamesTest, testing::ValuesIn(PlatformInfoNames), defaultPrinterWithParam<ol_platform_info_t>);
 
-// OL_PLATFORM_INFO_NAME
 TEST_P(olGetPlatformInfoNamesTest, SuccessName) {
   size_t Size = 0;
   ASSERT_SUCCESS(olGetPlatformInfoSize(Platform, getTestParam(), &Size));
@@ -27,30 +26,6 @@ TEST_P(olGetPlatformInfoNamesTest, SuccessName) {
       olGetPlatformInfo(Platform, getTestParam(), Size, Name.data()));
   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 }
-
-// TEST_P(olGetPlatformInfoTest, SuccessVendorName) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VENDOR_NAME, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> VendorName;
-//   VendorName.resize(Size);
-//   ASSERT_SUCCESS(olGetPlatformInfo(Platform, OL_PLATFORM_INFO_VENDOR_NAME, Size,
-//                                    VendorName.data()));
-//   ASSERT_EQ(std::strlen(VendorName.data()), Size - 1);
-// }
-
-// TEST_P(olGetPlatformInfoTest, SuccessVersion) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetPlatformInfoSize(Platform, OL_PLATFORM_INFO_VERSION, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> Version;
-//   Version.resize(Size);
-//   ASSERT_SUCCESS(olGetPlatformInfo(Platform, OL_PLATFORM_INFO_VERSION, Size,
-//                                    Version.data()));
-//   ASSERT_EQ(std::strlen(Version.data()), Size - 1);
-// }
 
 TEST_P(olGetPlatformInfoTest, SuccessBackend) {
   ol_platform_backend_t Backend;

@@ -6,13 +6,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-// #include "../common/Fixtures.hpp"
 #include "../common/Properties.hpp"
 #include <OffloadAPI.h>
 #include <gtest/gtest.h>
-
-// using olGetDeviceInfoTest = OffloadDeviceTest;
-// OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoTest);
 
 DeviceInfoProperties JustSupportedProperties = mergeProperties(
     {BoolProperties,
@@ -31,13 +27,6 @@ DeviceInfoProperties NonZeroProperties =
     mergeProperties({relevantGTCapabilitiesProperties,
                      relevantGTUint32Properties, Uint64Properties});
 
-// PropertiesSet HostNotMeaningfulGT{
-//     // OL_DEVICE_INFO_VENDOR_ID, 
-//     // OL_DEVICE_INFO_MAX_MEM_ALLOC_SIZE,
-//     // OL_DEVICE_INFO_GLOBAL_MEM_SIZE, 
-//     // OL_DEVICE_INFO_WORK_GROUP_LOCAL_MEM_SIZE
-//   };
-
 using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
@@ -51,15 +40,10 @@ OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
     testing::ValuesIn(NonZeroProperties),
     defaultPropertyTestPrinter<ol_device_info_t>);
 
-// those without gt
+// pROPERTIES without gt test
 TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
-  // Choosing the largest type since current possible types are {bool, uint32_t,
-  // uint64_t}
-  // uint64_t Value = 0;
   char Value[MAX_DEVICE_INFO_BYTES];
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
-
-  // std::cout << this->Device << " " << Host << std::endl;
 }
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
@@ -67,10 +51,7 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   char Value[MAX_DEVICE_INFO_BYTES] = {};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
-  // if (!isHost() || isMeaningfulForHost(Property, HostNotMeaningfulGT)) {
-    // ASSERT_GT(*reinterpret_cast<uint64_t*>(Value), 0ul);
     ASSERT_TRUE(defaultCheckIsNonZero(Value));
-  // }
 }
 
 using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
@@ -91,87 +72,6 @@ TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 }
 
-// TEST_P(olGetDeviceInfoTest, HostName) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_NAME, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> Name;
-//   Name.resize(Size);
-//   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_NAME, Size, Name.data()));
-//   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
-// }
-
-/* replaced*/
-
-// TEST_P(olGetDeviceHostInfoTest, SuccessProductName) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> Name;
-//   Name.resize(Size);
-//   ASSERT_SUCCESS(
-//       olGetDeviceInfo(Device, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
-//   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
-// }
-
-// TEST_P(olGetDeviceHostInfoTest, SuccessUID) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_UID, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> UID;
-//   UID.resize(Size);
-//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_UID, Size, UID.data()));
-//   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
-// }
-
-// // // repeated in host
-// // TEST_P(olGetDeviceHostnIfoTest, HostProductName) {
-// //   size_t Size = 0;
-// //   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_PRODUCT_NAME, &Size));
-// //   ASSERT_GT(Size, 0ul);
-// //   std::vector<char> Name;
-// //   Name.resize(Size);
-// //   ASSERT_SUCCESS(
-// //       olGetDeviceInfo(Device, OL_DEVICE_INFO_PRODUCT_NAME, Size, Name.data()));
-// //   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
-// // }
-
-// // repeated in host
-// // TEST_P(olGetDeviceInfoTest, HostUID) {
-// //   size_t Size = 0;
-// //   ASSERT_SUCCESS(olGetDeviceInfoSize(Host, OL_DEVICE_INFO_UID, &Size));
-// //   ASSERT_GT(Size, 0ul);
-// //   std::vector<char> UID;
-// //   UID.resize(Size);
-// //   ASSERT_SUCCESS(olGetDeviceInfo(Host, OL_DEVICE_INFO_UID, Size, UID.data()));
-// //   ASSERT_EQ(std::strlen(UID.data()), Size - 1);
-// // }
-
-// TEST_P(olGetDeviceHostInfoTest, SuccessVendor) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(olGetDeviceInfoSize(Device, OL_DEVICE_INFO_VENDOR, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> Vendor;
-//   Vendor.resize(Size);
-//   ASSERT_SUCCESS(
-//       olGetDeviceInfo(Device, OL_DEVICE_INFO_VENDOR, Size, Vendor.data()));
-//   ASSERT_EQ(std::strlen(Vendor.data()), Size - 1);
-// }
-
-// TEST_P(olGetDeviceHostInfoTest, SuccessDriverVersion) {
-//   size_t Size = 0;
-//   ASSERT_SUCCESS(
-//       olGetDeviceInfoSize(Device, OL_DEVICE_INFO_DRIVER_VERSION, &Size));
-//   ASSERT_GT(Size, 0ul);
-//   std::vector<char> DriverVersion;
-//   DriverVersion.resize(Size);
-//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_DRIVER_VERSION, Size,
-//                                  DriverVersion.data()));
-//   ASSERT_EQ(std::strlen(DriverVersion.data()), Size - 1);
-// }
-
-
 using olGetHostDeviceInfoDimensionsTest = olGetHostDeviceInfoPropertyTest;
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
@@ -189,23 +89,7 @@ TEST_P(olGetHostDeviceInfoDimensionsTest, Success) {
   ASSERT_GT(Value.z, 0u);
 }
 
-// TEST_P(olGetDeviceInfoTest, SuccessMaxWorkSizePerDimension) {
-//   ol_dimensions_t Value{0, 0, 0};
-//   ASSERT_SUCCESS(olGetDeviceInfo(Device,
-//                                  OL_DEVICE_INFO_MAX_WORK_SIZE_PER_DIMENSION,
-//                                  sizeof(Value), &Value));
-//   ASSERT_GT(Value.x, 0u);
-//   ASSERT_GT(Value.y, 0u);
-//   ASSERT_GT(Value.z, 0u);
-// }
-
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(olGetHostDeviceInfoTest);
-
-// TEST_P(olGetDeviceInfoTest, SuccessType) {
-//   ol_device_type_t DeviceType;
-//   ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_TYPE,
-//                                  sizeof(ol_device_type_t), &DeviceType));
-// }
 
 TEST_P(olGetHostDeviceInfoTest, HostSuccessType) {
   ol_device_type_t DeviceType;
@@ -213,7 +97,6 @@ TEST_P(olGetHostDeviceInfoTest, HostSuccessType) {
                                  sizeof(ol_device_type_t), &DeviceType));
 
   if (isHost()) {
-    // ASSERT_TRUE(false);
     ASSERT_EQ(DeviceType, OL_DEVICE_TYPE_HOST);
   }
 }

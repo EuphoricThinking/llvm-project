@@ -1,5 +1,4 @@
 #include "Properties.hpp"
-// #include <OffloadAPI.h>
 
 // ol_device_info_t
 DeviceInfoProp PropBool{OL_DEVICE_INFO_SINGLE_FP_SUPPORT,
@@ -67,7 +66,6 @@ SymbolInfoProperties SymbolGlobalProperties{
 };
 
 // ol_platform_info_t
-// PlatformInfoVec PlatformInfoNames{OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
 ol_platform_info_t PlatformInfoNames[3] = {OL_PLATFORM_INFO_NAME, OL_PLATFORM_INFO_VENDOR_NAME, OL_PLATFORM_INFO_VERSION};
 
 // ol_alloc_type_t

@@ -15,7 +15,6 @@
 #include <thread>
 
 #include "Environment.hpp"
-// #include "Device.hpp"
 
 #pragma once
 
@@ -218,7 +217,7 @@ struct OffloadDeviceTestWithParam
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
 
-    auto &DeviceParam = std::get<0>(this->GetParam()); // getDevice();
+    auto &DeviceParam = std::get<0>(this->GetParam());
     Device = DeviceParam.Handle;
     if (Device == nullptr)
       GTEST_SKIP() << "No available devices.";
@@ -237,10 +236,6 @@ struct OffloadDeviceTestWithParam
   }
 
   const OffloadParam<T> &getParamTuple() const { return this->GetParam(); }
-
-  // const ol_device_handle_t &getDevice() {
-  //   return std::get<0>(getParamTuple());
-  // }
 
   const T &getTestParam() { return std::get<1>(getParamTuple()); }
 
@@ -434,18 +429,6 @@ using DevicesVec = std::vector<TestEnvironment::Device>;
 
 inline DevicesVec getDevicesAndHost() {
   DevicesVec Res(TestEnvironment::getDevices());
-
-  //   auto host = TestEnvironment::getHostDevice();
-
-  //   ol_platform_handle_t Platform;
-  //             olGetDeviceInfo(host, OL_DEVICE_INFO_PLATFORM,
-  //             sizeof(Platform),
-  //                             &Platform);
-
-  // std::stringstream ss;
-  // ss << Platform;
-
-  //   TestEnvironment::Device Host{host, ss.str()};
   TestEnvironment::Device Host{TestEnvironment::getHostDevice(), "HOST"};
 
   Res.push_back(Host);
@@ -511,6 +494,3 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE, ::testing::ValuesIn(getDevicesAndHost()), defaultPrinter);    \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
-
-// #define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES, TYPE)           \
-//   OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM_CUSTOM_PRINTER(FIXTURE, VALUES, defaultPrinterWithParam<TYPE>)
