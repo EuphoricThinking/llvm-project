@@ -6,8 +6,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-#include <OffloadAPI.h>
 #include "../common/Properties.hpp"
+#include <OffloadAPI.h>
 
 using olGetDeviceInfoSizeTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetDeviceInfoSizeTest);
@@ -20,8 +20,7 @@ DeviceInfoProperties answerSizeEqualToTypeSizeProperties = mergeProperties(
      PlatformProperties, DeviceTypeProperties});
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceInfoSizeEqualTest,
-answerSizeEqualToTypeSizeProperties,
+    olGetDeviceInfoSizeEqualTest, answerSizeEqualToTypeSizeProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(

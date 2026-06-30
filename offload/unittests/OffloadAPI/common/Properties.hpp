@@ -12,19 +12,20 @@ template <typename T> using PropertyTuple = std::tuple<size_t, T>;
 template <typename T> using PropertyTuples = std::vector<PropertyTuple<T>>;
 
 template <typename T> using PropertiesSet = std::set<T>;
-template <typename T> using PropertiesTypes = std::unordered_map<T, PropertyTuple<T>>;
-
 template <typename T>
-inline size_t getSize(PropertyTuple<T> &prop) { return std::get<0>(prop); }
+using PropertiesTypes = std::unordered_map<T, PropertyTuple<T>>;
 
-template <typename T>
-inline ol_device_info_t getProp(PropertyTuple<T> &prop) {
+template <typename T> inline size_t getSize(PropertyTuple<T> &prop) {
+  return std::get<0>(prop);
+}
+
+template <typename T> inline ol_device_info_t getProp(PropertyTuple<T> &prop) {
   return std::get<1>(prop);
 }
 
 template <typename T>
 auto createPropertyTuples(size_t PropSize,
-                                    PropertiesSet<T> SelectedProperties) {
+                          PropertiesSet<T> SelectedProperties) {
   PropertyTuples<T> Res;
   for (auto p : SelectedProperties) {
     Res.push_back({PropSize, p});
@@ -34,7 +35,8 @@ auto createPropertyTuples(size_t PropSize,
 }
 
 template <typename T>
-auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties) -> PropertyTuples<T> {
+auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties)
+    -> PropertyTuples<T> {
   PropertyTuples<T> finalProperties;
 
   for (auto prop : properties) {
@@ -123,10 +125,11 @@ inline std::string defaultPropertyTestPrinter(
   return SanitizeString(finalName.str());
 }
 
-template <typename T> 
+template <typename T>
 struct olPropertyTest : OffloadDeviceTestWithParam<PropertyTuple<T>> {
   void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<PropertyTuple<T>>::SetUp());
+    RETURN_ON_FATAL_FAILURE(
+        OffloadDeviceTestWithParam<PropertyTuple<T>>::SetUp());
 
     auto paramTuple = this->getTestParam();
     PropertySize = std::get<0>(paramTuple);
@@ -155,9 +158,11 @@ using SymbolInfoProperties = PropertyTuples<ol_symbol_info_t>;
 extern SymbolInfoProp PropSymbolInfoGlobal;
 extern SymbolInfoProperties SymbolGlobalProperties;
 
-struct olGetSymbolInfoSizeGlobalTest : OffloadGlobalTestWithParam<SymbolInfoTuple> {
+struct olGetSymbolInfoSizeGlobalTest
+    : OffloadGlobalTestWithParam<SymbolInfoTuple> {
   void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadGlobalTestWithParam<SymbolInfoTuple>::SetUp());
+    RETURN_ON_FATAL_FAILURE(
+        OffloadGlobalTestWithParam<SymbolInfoTuple>::SetUp());
 
     auto paramTuple = this->getTestParam();
     PropertySize = std::get<0>(paramTuple);

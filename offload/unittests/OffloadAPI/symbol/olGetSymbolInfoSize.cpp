@@ -13,7 +13,9 @@
 using olGetSymbolInfoSizeKernelTest = OffloadKernelTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olGetSymbolInfoSizeKernelTest);
 
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olGetSymbolInfoSizeGlobalTest, SymbolGlobalProperties, defaultPropertyTestPrinter<ol_symbol_info_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
+    olGetSymbolInfoSizeGlobalTest, SymbolGlobalProperties,
+    defaultPropertyTestPrinter<ol_symbol_info_t>);
 
 TEST_P(olGetSymbolInfoSizeKernelTest, SuccessPropertySize) {
   size_t Size = 0;

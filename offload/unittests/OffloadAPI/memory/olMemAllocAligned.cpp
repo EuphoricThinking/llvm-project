@@ -14,7 +14,9 @@ using olMemAllocAlignedTest = OffloadDeviceTest;
 OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(olMemAllocAlignedTest);
 
 using olMemAllocAlignedTypesTest = OffloadDeviceTestWithParam<ol_alloc_type_t>;
-OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(olMemAllocAlignedTypesTest, AllocTypes, defaultPrinterWithParam<ol_alloc_type_t>);
+OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
+    olMemAllocAlignedTypesTest, AllocTypes,
+    defaultPrinterWithParam<ol_alloc_type_t>);
 
 constexpr size_t DefaultAlignment = 16;
 constexpr size_t TestAllocsNum = 1000;
@@ -88,8 +90,8 @@ TEST_P(olMemAllocAlignedTypesTest, SuccessAllocDifferentAlignments) {
   for (size_t i = 0; i < NumAlignments; i++) {
     Alignment = Alignments[i];
     SCOPED_TRACE("alignment: " + std::to_string(Alignment));
-    ASSERT_SUCCESS(olMemAllocAligned(Device, getTestParam(), 1024,
-                                     Alignment, &Alloc));
+    ASSERT_SUCCESS(
+        olMemAllocAligned(Device, getTestParam(), 1024, Alignment, &Alloc));
     ASSERT_NE(Alloc, nullptr);
     olMemFree(Alloc);
   }
@@ -108,8 +110,8 @@ TEST_P(olMemAllocAlignedTypesTest, SuccessMemcpyDiferentAlignments) {
     Alignment = Alignments[i];
     SCOPED_TRACE("alignment: " + std::to_string(Alignment));
 
-    ASSERT_SUCCESS(olMemAllocAligned(Device, getTestParam(), Size,
-                                     Alignment, &Alloc));
+    ASSERT_SUCCESS(
+        olMemAllocAligned(Device, getTestParam(), Size, Alignment, &Alloc));
     // memcpy is synchronous when queue is unspecified.
     ASSERT_SUCCESS(olMemcpy(nullptr, Alloc, Device, Input.data(), Host, Size));
     ASSERT_SUCCESS(olMemcpy(nullptr, Output.data(), Host, Alloc, Device, Size));

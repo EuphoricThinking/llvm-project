@@ -31,13 +31,11 @@ using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
-    olGetHostDeviceInfoPropertySupportTest,
-    JustSupportedProperties,
+    olGetHostDeviceInfoPropertySupportTest, JustSupportedProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
-    olGetHostDeviceInfoPropertyNonZeroTest,
-    NonZeroProperties,
+    olGetHostDeviceInfoPropertyNonZeroTest, NonZeroProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 // Properties without gt test
@@ -51,14 +49,13 @@ TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
   char Value[MAX_DEVICE_INFO_BYTES] = {};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 
-    ASSERT_TRUE(defaultCheckIsNonZero(Value));
+  ASSERT_TRUE(defaultCheckIsNonZero(Value));
 }
 
 using olGetDeviceHostInfoNamesTest = olGetHostDeviceInfoPropertyTest;
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
-    olGetDeviceHostInfoNamesTest,
-    NamesProperties,
+    olGetDeviceHostInfoNamesTest, NamesProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
@@ -67,23 +64,19 @@ TEST_P(olGetDeviceHostInfoNamesTest, SuccessNames) {
   ASSERT_GT(Size, 0ul);
   std::vector<char> Name;
   Name.resize(Size);
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, Property, Size, Name.data()));
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, Size, Name.data()));
   ASSERT_EQ(std::strlen(Name.data()), Size - 1);
 }
 
 using olGetHostDeviceInfoDimensionsTest = olGetHostDeviceInfoPropertyTest;
 
 OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(
-    olGetHostDeviceInfoDimensionsTest,
-  DimensionsProperties,
+    olGetHostDeviceInfoDimensionsTest, DimensionsProperties,
     defaultPropertyTestPrinter<ol_device_info_t>);
 
 TEST_P(olGetHostDeviceInfoDimensionsTest, Success) {
   ol_dimensions_t Value{0, 0, 0};
-  ASSERT_SUCCESS(
-      olGetDeviceInfo(Device, Property,
-                      sizeof(Value), &Value));
+  ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, sizeof(Value), &Value));
   ASSERT_GT(Value.x, 0u);
   ASSERT_GT(Value.y, 0u);
   ASSERT_GT(Value.z, 0u);

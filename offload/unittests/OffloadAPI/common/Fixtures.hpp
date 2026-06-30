@@ -298,8 +298,8 @@ struct OffloadProgramTestWithParam : OffloadDeviceTestWithParam<T> {
 
   void SetUpWith(const char *ProgramName) {
     RETURN_ON_FATAL_FAILURE(OffloadDeviceTestWithParam<T>::SetUp());
-    ASSERT_TRUE(
-        TestEnvironment::loadDeviceBinary(ProgramName, this->Device, DeviceBin));
+    ASSERT_TRUE(TestEnvironment::loadDeviceBinary(ProgramName, this->Device,
+                                                  DeviceBin));
     ASSERT_GE(DeviceBin->getBufferSize(), 0lu);
     ASSERT_SUCCESS(olCreateProgram(this->Device, DeviceBin->getBufferStart(),
                                    DeviceBin->getBufferSize(), &Program));
@@ -346,7 +346,8 @@ struct OffloadGlobalTest : OffloadProgramTest {
 template <typename T>
 struct OffloadGlobalTestWithParam : OffloadProgramTestWithParam<T> {
   void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadProgramTestWithParam<T>::SetUpWith("global"));
+    RETURN_ON_FATAL_FAILURE(
+        OffloadProgramTestWithParam<T>::SetUpWith("global"));
     ASSERT_SUCCESS(olGetSymbol(this->Program, "global",
                                OL_SYMBOL_KIND_GLOBAL_VARIABLE, &Global));
   }
@@ -469,7 +470,7 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
-                       ::testing::ValuesIn(VALUES)),                                                \
+                       ::testing::ValuesIn(VALUES)),                           \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
@@ -478,7 +479,7 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
-                       ::testing::ValuesIn(VALUES)),                                                \
+                       ::testing::ValuesIn(VALUES)),                           \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
@@ -486,7 +487,8 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
     FIXTURE, VALUES, PRINTER)                                                  \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
-      testing::Combine(::testing::ValuesIn(getDevicesAndHost()), ::testing::ValuesIn(VALUES)),      \
+      testing::Combine(::testing::ValuesIn(getDevicesAndHost()),               \
+                       ::testing::ValuesIn(VALUES)),                           \
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
