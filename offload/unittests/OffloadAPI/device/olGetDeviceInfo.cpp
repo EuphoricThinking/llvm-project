@@ -37,7 +37,6 @@ TEST_P(olGetHostDeviceInfoPropertySupportTest, Success) {
 }
 
 TEST_P(olGetHostDeviceInfoPropertyNonZeroTest, Value) {
-  // uint64_t Value = 0;
   char Value[MAX_DEVICE_INFO_BYTES] = {};
   ASSERT_SUCCESS(olGetDeviceInfo(Device, Property, PropertySize, &Value));
 

@@ -101,3 +101,5 @@ MemInfoProperties MemInfoSizeProperties{
     {sizeof(void *), OL_MEM_INFO_BASE},
     {sizeof(size_t), OL_MEM_INFO_SIZE},
     {sizeof(ol_alloc_type_t), OL_MEM_INFO_TYPE}};
+
+size_t TestAllocsNum = 1000;

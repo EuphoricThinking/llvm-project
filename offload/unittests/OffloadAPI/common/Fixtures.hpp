@@ -8,7 +8,6 @@
 
 #include <OffloadAPI.h>
 #include <OffloadPrint.hpp>
-#include <fstream>
 #include <gtest/gtest.h>
 #include <optional>
 #include <string>
@@ -181,33 +180,6 @@ struct OffloadTest : ::testing::Test {
   ol_device_handle_t Host = TestEnvironment::getHostDevice();
 };
 
-struct OffloadDeviceTest
-    : OffloadTest,
-      ::testing::WithParamInterface<TestEnvironment::Device> {
-  void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadTest::SetUp());
-
-    auto DeviceParam = GetParam();
-    Device = DeviceParam.Handle;
-    if (Device == nullptr)
-      GTEST_SKIP() << "No available devices.";
-  }
-
-  ol_platform_backend_t getPlatformBackend() const {
-    ol_platform_handle_t Platform = nullptr;
-    if (olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
-                        sizeof(ol_platform_handle_t), &Platform))
-      return OL_PLATFORM_BACKEND_UNKNOWN;
-    ol_platform_backend_t Backend;
-    if (olGetPlatformInfo(Platform, OL_PLATFORM_INFO_BACKEND,
-                          sizeof(ol_platform_backend_t), &Backend))
-      return OL_PLATFORM_BACKEND_UNKNOWN;
-    return Backend;
-  }
-
-  ol_device_handle_t Device = nullptr;
-};
-
 template <class T> using OffloadParam = std::tuple<TestEnvironment::Device, T>;
 
 template <class T>
@@ -242,17 +214,17 @@ struct OffloadDeviceTestWithParam
   ol_device_handle_t Device = nullptr;
 };
 
-struct OffloadPlatformTest : OffloadDeviceTest {
-  void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
-
-    ASSERT_SUCCESS(olGetDeviceInfo(Device, OL_DEVICE_INFO_PLATFORM,
-                                   sizeof(Platform), &Platform));
-    ASSERT_NE(Platform, nullptr);
-  }
-
-  ol_platform_handle_t Platform = nullptr;
-};
+// In order to avoid code duplication, the unparameterized versions of fixtures
+// are aliases for parameterized fixtures, with `int` type chosen arbitrarily as
+// an ignored parameter type. The single mock parameter of value `0` is combined
+// with the devices in the provided macros, yielding tuples
+// `std::tuple<TestEnvironment::Device, int>`. The hidden `int` parameter is not
+// used, but it enables users to instantiate unparameterized tests without the
+// knowledge about the details related to the implementation of fixtures.
+// Moreover, it allows for modifying only one version of the fixture, without
+// the need to also change the other version: either parameterized or
+// unparameterized.
+using OffloadDeviceTest = OffloadDeviceTestWithParam<int>;
 
 template <typename T>
 struct OffloadPlatformTestWithParam : OffloadDeviceTestWithParam<T> {
@@ -267,31 +239,10 @@ struct OffloadPlatformTestWithParam : OffloadDeviceTestWithParam<T> {
   ol_platform_handle_t Platform = nullptr;
 };
 
+using OffloadPlatformTest = OffloadPlatformTestWithParam<int>;
+
 // Fixture for a generic program test. If you want a different program, use
 // offloadQueueTest and create your own program handle with the binary you want.
-struct OffloadProgramTest : OffloadDeviceTest {
-  void SetUp() override { SetUpWith("foo"); }
-
-  void SetUpWith(const char *ProgramName) {
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::SetUp());
-    ASSERT_TRUE(
-        TestEnvironment::loadDeviceBinary(ProgramName, Device, DeviceBin));
-    ASSERT_GE(DeviceBin->getBufferSize(), 0lu);
-    ASSERT_SUCCESS(olCreateProgram(Device, DeviceBin->getBufferStart(),
-                                   DeviceBin->getBufferSize(), &Program));
-  }
-
-  void TearDown() override {
-    if (Program) {
-      olDestroyProgram(Program);
-    }
-    RETURN_ON_FATAL_FAILURE(OffloadDeviceTest::TearDown());
-  }
-
-  ol_program_handle_t Program = nullptr;
-  std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
-};
-
 template <typename T>
 struct OffloadProgramTestWithParam : OffloadDeviceTestWithParam<T> {
   void SetUp() override { SetUpWith("foo"); }
@@ -316,6 +267,8 @@ struct OffloadProgramTestWithParam : OffloadDeviceTestWithParam<T> {
   std::unique_ptr<llvm::MemoryBuffer> DeviceBin;
 };
 
+using OffloadProgramTest = OffloadProgramTestWithParam<int>;
+
 struct OffloadKernelTest : OffloadProgramTest {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(OffloadProgramTest::SetUp());
@@ -327,20 +280,6 @@ struct OffloadKernelTest : OffloadProgramTest {
   }
 
   ol_symbol_handle_t Kernel = nullptr;
-};
-
-struct OffloadGlobalTest : OffloadProgramTest {
-  void SetUp() override {
-    RETURN_ON_FATAL_FAILURE(OffloadProgramTest::SetUpWith("global"));
-    ASSERT_SUCCESS(olGetSymbol(Program, "global",
-                               OL_SYMBOL_KIND_GLOBAL_VARIABLE, &Global));
-  }
-
-  void TearDown() override {
-    RETURN_ON_FATAL_FAILURE(OffloadProgramTest::TearDown());
-  }
-
-  ol_symbol_handle_t Global = nullptr;
 };
 
 template <typename T>
@@ -358,6 +297,8 @@ struct OffloadGlobalTestWithParam : OffloadProgramTestWithParam<T> {
 
   ol_symbol_handle_t Global = nullptr;
 };
+
+using OffloadGlobalTest = OffloadGlobalTestWithParam<int>;
 
 struct OffloadQueueTest : OffloadDeviceTest {
   void SetUp() override {
@@ -452,21 +393,30 @@ defaultPrinterWithParam(const ::testing::TestParamInfo<OffloadParam<T>> &info) {
 }
 
 inline std::string
-defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
-  return SanitizeString(info.param.Name);
+defaultPrinter(const ::testing::TestParamInfo<OffloadParam<int>> &info) {
+  auto device = std::get<0>(info.param);
+
+  return SanitizeString(device.Name);
 }
 
 // Devices might not be available for offload testing, so allow uninstantiated
 // tests (as the device list will be empty). This means that all tests requiring
 // a device will be silently skipped.
-#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(FIXTURE)                      \
-  INSTANTIATE_TEST_SUITE_P(, FIXTURE,                                          \
-                           ::testing::ValuesIn(TestEnvironment::getDevices()), \
-                           defaultPrinter);                                    \
+#define OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES(FIXTURE, DEVICES)               \
+  INSTANTIATE_TEST_SUITE_P(                                                    \
+      , FIXTURE,                                                               \
+      testing::Combine(::testing::ValuesIn(DEVICES), testing::ValuesIn({0})),  \
+      defaultPrinter);                                                         \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
-#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
-                                                            PRINTER)           \
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE(FIXTURE)                      \
+  OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES(FIXTURE, TestEnvironment::getDevices())
+
+#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(FIXTURE)                 \
+  OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES(FIXTURE, getDevicesAndHost())
+
+#define OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES_WITH_PARAM(FIXTURE, VALUES,     \
+                                                          DEVICES, PRINTER)    \
   INSTANTIATE_TEST_SUITE_P(                                                    \
       , FIXTURE,                                                               \
       testing::Combine(::testing::ValuesIn(TestEnvironment::getDevices()),     \
@@ -474,16 +424,12 @@ defaultPrinter(const ::testing::TestParamInfo<TestEnvironment::Device> &info) {
       PRINTER);                                                                \
   GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
 
+#define OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(FIXTURE, VALUES,   \
+                                                            PRINTER)           \
+  OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES_WITH_PARAM(                           \
+      FIXTURE, VALUES, TestEnvironment::getDevices(), PRINTER)
+
 #define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE_WITH_PARAM(              \
     FIXTURE, VALUES, PRINTER)                                                  \
-  INSTANTIATE_TEST_SUITE_P(                                                    \
-      , FIXTURE,                                                               \
-      testing::Combine(::testing::ValuesIn(getDevicesAndHost()),               \
-                       ::testing::ValuesIn(VALUES)),                           \
-      PRINTER);                                                                \
-  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
-
-#define OFFLOAD_TESTS_INSTANTIATE_HOST_DEVICE_FIXTURE(FIXTURE)                 \
-  INSTANTIATE_TEST_SUITE_P(                                                    \
-      , FIXTURE, ::testing::ValuesIn(getDevicesAndHost()), defaultPrinter);    \
-  GTEST_ALLOW_UNINSTANTIATED_PARAMETERIZED_TEST(FIXTURE)
+  OFFLOAD_TESTS_INSTANTIATE_WITH_DEVICES_WITH_PARAM(                           \
+      FIXTURE, VALUES, getDevicesAndHost(), PRINTER)

@@ -27,9 +27,9 @@ TEST_P(olMemAllocAllocTypesTest, Success) {
 
 TEST_P(olMemAllocTest, SuccessAllocMany) {
   std::vector<void *> Allocs;
-  Allocs.reserve(1000);
+  Allocs.reserve(TestAllocsNum);
 
-  for (size_t I = 1; I < 1000; I++) {
+  for (size_t I = 1; I < TestAllocsNum; I++) {
     void *Alloc = nullptr;
     ASSERT_SUCCESS(olMemAlloc(Device, AllocTypes[I % 3], 1024 * I, &Alloc));
     ASSERT_NE(Alloc, nullptr);

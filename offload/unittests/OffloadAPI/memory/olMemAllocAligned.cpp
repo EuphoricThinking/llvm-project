@@ -19,7 +19,6 @@ OFFLOAD_TESTS_INSTANTIATE_DEVICE_FIXTURE_WITH_PARAM(
     defaultPrinterWithParam<ol_alloc_type_t>);
 
 constexpr size_t DefaultAlignment = 16;
-constexpr size_t TestAllocsNum = 1000;
 
 TEST_P(olMemAllocAlignedTest, SuccessAllocMany) {
   std::vector<void *> Allocs;
@@ -83,9 +82,10 @@ TEST_P(olMemAllocAlignedTest, CudaExceedDefaultAlignment) {
 
 TEST_P(olMemAllocAlignedTypesTest, SuccessAllocDifferentAlignments) {
   void *Alloc = nullptr;
-  size_t NumAlignments = 6;
   size_t Alignments[] = {8, 16, 32, 64, 128, 256};
+  size_t NumAlignments = sizeof(Alignments) / sizeof(Alignments[0]);
   size_t Alignment;
+
 
   for (size_t i = 0; i < NumAlignments; i++) {
     Alignment = Alignments[i];

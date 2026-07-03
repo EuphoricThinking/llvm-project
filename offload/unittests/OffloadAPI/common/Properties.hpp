@@ -5,7 +5,7 @@
 
 inline constexpr size_t MAX_DEVICE_INFO_BYTES = 8;
 
-constexpr char zeroArray[MAX_DEVICE_INFO_BYTES] = {};
+inline constexpr char zeroArray[MAX_DEVICE_INFO_BYTES] = {};
 
 template <typename T> struct SizedProperty {
   size_t size;
@@ -183,3 +183,5 @@ using MemInfoProperties = PropertiesWithSizeContainer<ol_mem_info_t>;
 
 extern MemInfoProp PropMemInfo;
 extern MemInfoProperties MemInfoSizeProperties;
+
+extern size_t TestAllocsNum;
