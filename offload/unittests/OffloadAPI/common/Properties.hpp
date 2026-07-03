@@ -3,30 +3,26 @@
 #include "Fixtures.hpp"
 #include "OffloadAPI.h"
 
-constexpr size_t MAX_DEVICE_INFO_BYTES = 8;
+inline constexpr size_t MAX_DEVICE_INFO_BYTES = 8;
 
 constexpr char zeroArray[MAX_DEVICE_INFO_BYTES] = {};
 
-template <typename T> using PropertiesVec = std::vector<T>;
-template <typename T> using PropertyTuple = std::tuple<size_t, T>;
-template <typename T> using PropertyTuples = std::vector<PropertyTuple<T>>;
-
-template <typename T> using PropertiesSet = std::set<T>;
-template <typename T>
-using PropertiesTypes = std::unordered_map<T, PropertyTuple<T>>;
-
-template <typename T> inline size_t getSize(PropertyTuple<T> &prop) {
-  return std::get<0>(prop);
-}
-
-template <typename T> inline ol_device_info_t getProp(PropertyTuple<T> &prop) {
-  return std::get<1>(prop);
-}
+template <typename T> struct SizedProperty {
+  size_t size;
+  T property;
+};
 
 template <typename T>
-auto createPropertyTuples(size_t PropSize,
-                          PropertiesSet<T> SelectedProperties) {
-  PropertyTuples<T> Res;
+using PropertiesWithSizeContainer = std::vector<SizedProperty<T>>;
+template <typename T> using PropertiesContainer = std::set<T>;
+template <typename T>
+using PropertiesTypes = std::unordered_map<T, SizedProperty<T>>;
+
+template <typename T>
+auto createPropertiesWithSizeContainer(
+    size_t PropSize, PropertiesContainer<T> SelectedProperties)
+    -> PropertiesWithSizeContainer<T> {
+  PropertiesWithSizeContainer<T> Res;
   for (auto p : SelectedProperties) {
     Res.push_back({PropSize, p});
   }
@@ -35,9 +31,9 @@ auto createPropertyTuples(size_t PropSize,
 }
 
 template <typename T>
-auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties)
-    -> PropertyTuples<T> {
-  PropertyTuples<T> finalProperties;
+auto mergeProperties(std::initializer_list<PropertiesWithSizeContainer<T>>
+                         properties) -> PropertiesWithSizeContainer<T> {
+  PropertiesWithSizeContainer<T> finalProperties;
 
   for (auto prop : properties) {
     finalProperties.insert(finalProperties.end(), prop.begin(), prop.end());
@@ -47,13 +43,13 @@ auto mergeProperties(std::initializer_list<PropertyTuples<T>> properties)
 }
 
 template <typename T>
-PropertyTuples<T> inline copyRelevantProperties(
-    PropertyTuples<T> properties, std::initializer_list<T> unwanted,
-    PropertiesTypes<T> typesMap) {
-  PropertyTuples<T> res(properties);
+PropertiesContainer<T>
+removeIrrelevantProperties(PropertiesContainer<T> base,
+                           PropertiesContainer<T> unwanted) {
+  PropertiesContainer<T> res(base);
 
   for (auto prop : unwanted) {
-    res.erase(std::find(res.begin(), res.end(), typesMap.at(prop)));
+    res.erase(prop);
   }
 
   return res;
@@ -61,12 +57,12 @@ PropertyTuples<T> inline copyRelevantProperties(
 
 template <typename T>
 PropertiesTypes<T> inline createTypesMap(
-    std::initializer_list<PropertyTuples<T>> properties) {
+    std::initializer_list<PropertiesWithSizeContainer<T>> properties) {
   PropertiesTypes<T> Res;
 
   for (auto container : properties) {
     for (auto prop : container) {
-      Res.insert({getProp(prop), prop});
+      Res.insert({prop.property, prop});
     }
   }
 
@@ -74,9 +70,8 @@ PropertiesTypes<T> inline createTypesMap(
 }
 
 // ol_device_info_t
-using DeviceInfoTuple = PropertyTuple<ol_device_info_t>;
-using DeviceInfoProp = PropertiesSet<ol_device_info_t>;
-using DeviceInfoProperties = PropertyTuples<ol_device_info_t>;
+using DeviceInfoProp = PropertiesContainer<ol_device_info_t>;
+using DeviceInfoProperties = PropertiesWithSizeContainer<ol_device_info_t>;
 using DeviceInfoPropertiesTypes = PropertiesTypes<ol_device_info_t>;
 
 extern DeviceInfoProp PropBool;
@@ -104,6 +99,9 @@ extern DeviceInfoProperties NamesProperties;
 extern DeviceInfoProp PropDimensions;
 extern DeviceInfoProperties DimensionsProperties;
 
+extern DeviceInfoProperties RelevantGTCapabilitiesProperties;
+extern DeviceInfoProperties RelevantGTUint32Properties;
+
 extern DeviceInfoPropertiesTypes propertiesTypes;
 
 inline bool defaultCheckIsNonZero(char *buffer) {
@@ -112,28 +110,28 @@ inline bool defaultCheckIsNonZero(char *buffer) {
 
 template <typename T>
 inline std::string defaultPropertyTestPrinter(
-    const ::testing::TestParamInfo<OffloadParam<PropertyTuple<T>>> &info) {
+    const ::testing::TestParamInfo<OffloadParam<SizedProperty<T>>> &info) {
   auto device = std::get<0>(info.param);
-  auto paramTuple = std::get<1>(info.param);
+  auto paramData = std::get<1>(info.param);
 
   std::string ss;
   llvm::raw_string_ostream finalName(ss);
 
-  auto property = std::get<1>(paramTuple);
+  auto property = paramData.property;
   finalName << device.Name << "__" << property;
 
   return SanitizeString(finalName.str());
 }
 
 template <typename T>
-struct olPropertyTest : OffloadDeviceTestWithParam<PropertyTuple<T>> {
+struct olPropertyTest : OffloadDeviceTestWithParam<SizedProperty<T>> {
   void SetUp() override {
     RETURN_ON_FATAL_FAILURE(
-        OffloadDeviceTestWithParam<PropertyTuple<T>>::SetUp());
+        OffloadDeviceTestWithParam<SizedProperty<T>>::SetUp());
 
-    auto paramTuple = this->getTestParam();
-    PropertySize = std::get<0>(paramTuple);
-    Property = std::get<1>(paramTuple);
+    auto paramData = this->getTestParam();
+    PropertySize = paramData.size;
+    Property = paramData.property;
   }
 
   size_t PropertySize = 0;
@@ -151,9 +149,9 @@ struct olGetHostDeviceInfoTest : OffloadDeviceTest {
 };
 
 // ol_symbol_info
-using SymbolInfoTuple = PropertyTuple<ol_symbol_info_t>;
-using SymbolInfoProp = PropertiesSet<ol_symbol_info_t>;
-using SymbolInfoProperties = PropertyTuples<ol_symbol_info_t>;
+using SymbolInfoTuple = SizedProperty<ol_symbol_info_t>;
+using SymbolInfoProp = PropertiesContainer<ol_symbol_info_t>;
+using SymbolInfoProperties = PropertiesWithSizeContainer<ol_symbol_info_t>;
 
 extern SymbolInfoProp PropSymbolInfoGlobal;
 extern SymbolInfoProperties SymbolGlobalProperties;
@@ -164,9 +162,9 @@ struct olGetSymbolInfoSizeGlobalTest
     RETURN_ON_FATAL_FAILURE(
         OffloadGlobalTestWithParam<SymbolInfoTuple>::SetUp());
 
-    auto paramTuple = this->getTestParam();
-    PropertySize = std::get<0>(paramTuple);
-    Property = std::get<1>(paramTuple);
+    auto paramData = this->getTestParam();
+    PropertySize = paramData.size;
+    Property = paramData.property;
   }
 
   size_t PropertySize = 0;
@@ -180,9 +178,8 @@ extern ol_platform_info_t PlatformInfoNames[3];
 extern ol_alloc_type_t AllocTypes[3];
 
 // ol_mem_info_t
-using MemInfoTuple = PropertyTuple<ol_mem_info_t>;
-using MemInfoProp = PropertiesSet<ol_mem_info_t>;
-using MemInfoProperties = PropertyTuples<ol_mem_info_t>;
+using MemInfoProp = PropertiesContainer<ol_mem_info_t>;
+using MemInfoProperties = PropertiesWithSizeContainer<ol_mem_info_t>;
 
 extern MemInfoProp PropMemInfo;
 extern MemInfoProperties MemInfoSizeProperties;

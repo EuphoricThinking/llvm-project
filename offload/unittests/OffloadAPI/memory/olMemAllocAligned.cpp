@@ -23,7 +23,7 @@ constexpr size_t TestAllocsNum = 1000;
 
 TEST_P(olMemAllocAlignedTest, SuccessAllocMany) {
   std::vector<void *> Allocs;
-  Allocs.reserve(1000);
+  Allocs.reserve(TestAllocsNum);
 
   for (size_t I = 1; I < TestAllocsNum; I++) {
     void *Alloc = nullptr;

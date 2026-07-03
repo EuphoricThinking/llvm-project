@@ -15,17 +15,9 @@ DeviceInfoProperties JustSupportedProperties = mergeProperties(
      {propertiesTypes.at(OL_DEVICE_INFO_HALF_FP_CONFIG),
       propertiesTypes.at(OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF)}});
 
-DeviceInfoProperties relevantGTCapabilitiesProperties =
-    copyRelevantProperties(CapabilitesFlagsProperties,
-                           {OL_DEVICE_INFO_HALF_FP_CONFIG}, propertiesTypes);
-
-DeviceInfoProperties relevantGTUint32Properties = copyRelevantProperties(
-    Uint32Properties, {OL_DEVICE_INFO_NATIVE_VECTOR_WIDTH_HALF},
-    propertiesTypes);
-
 DeviceInfoProperties NonZeroProperties =
-    mergeProperties({relevantGTCapabilitiesProperties,
-                     relevantGTUint32Properties, Uint64Properties});
+    mergeProperties({RelevantGTCapabilitiesProperties,
+                     RelevantGTUint32Properties, Uint64Properties});
 
 using olGetHostDeviceInfoPropertySupportTest = olGetHostDeviceInfoPropertyTest;
 using olGetHostDeviceInfoPropertyNonZeroTest = olGetHostDeviceInfoPropertyTest;
