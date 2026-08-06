@@ -285,6 +285,16 @@ public:
       });
       if (Itr != Last) {
         NodePtr = &Itr->get();
+
+        if (Alignment > 0) {
+          uintptr_t AlignedPointer = (uintptr_t)NodePtr->BasePtr;
+          AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
+
+          // TODO adjust PtrToNodeTable map; adjust the key to the returned pointer
+
+          NodePtr->Ptr = (void*)AlignedPointer;
+        }
+
         List.erase(Itr);
       }
     }
