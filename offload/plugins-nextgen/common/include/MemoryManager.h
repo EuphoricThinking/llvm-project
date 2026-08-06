@@ -106,14 +106,15 @@ class MemoryManagerTy {
 
   /// A structure stores the meta data of a target pointer
   struct NodeTy {
+    /// Size requested by the user
     const size_t RequestedSize;
-    /// Memory size
+    /// Final memory size, including the alignment
     const size_t Size;
     /// Target pointer
     void *Ptr;
 
     /// Constructor
-    NodeTy(size_t Size, void *Ptr) : RequestedSize(0), Size(Size), Ptr(Ptr) {}
+    NodeTy(size_t RequestedSize, size_t FinalSize, void *Ptr) : RequestedSize(RequestedSize), Size(FinalSize), Ptr(Ptr) {}
   };
 
   /// To make \p NodePtrTy ordered when they're put into \p std::multiset.
@@ -262,6 +263,10 @@ public:
       return *TgtPtrOrErr;
     }
 
+    size_t RequestedSize = Size;
+    if (Alignment > 0) {
+      Size += Alignment - 1;
+    }
     NodeTy *NodePtr = nullptr;
 
     // Try to get a node from FreeList
@@ -269,7 +274,7 @@ public:
       const int B = findBucket(Size);
       FreeListTy &List = FreeLists[B];
 
-      NodeTy TempNode(Size, nullptr);
+      NodeTy TempNode(RequestedSize, Size, nullptr);
       std::lock_guard<std::mutex> LG(FreeListLocks[B]);
       auto [First, Last] = List.equal_range(TempNode);
 
@@ -303,7 +308,7 @@ public:
       // Create a new node and add it into the map table
       {
         std::lock_guard<std::mutex> Guard(MapTableLock);
-        auto Itr = PtrToNodeTable.emplace(TgtPtr, NodeTy(Size, TgtPtr));
+        auto Itr = PtrToNodeTable.emplace(TgtPtr, NodeTy(RequestedSize, Size, TgtPtr));
         NodePtr = &Itr.first->second;
       }
 
