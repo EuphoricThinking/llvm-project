@@ -110,7 +110,9 @@ class MemoryManagerTy {
     const size_t RequestedSize;
     /// Final memory size, including the alignment
     const size_t Size;
-    /// Target pointer
+    /// Pointer to the originally allcoated memory
+    void* BasePtr;
+    /// Target pointer, returned to the caller; after adjustments related to the memory alignment
     void *Ptr;
 
     /// Constructor
@@ -170,7 +172,7 @@ class MemoryManagerTy {
       if (List.empty())
         continue;
       for (const NodeTy &N : List) {
-        if (auto Err = deleteOnDevice(N.Ptr))
+        if (auto Err = deleteOnDevice(N.BasePtr))
           return Err;
         RemoveList.push_back(N.Ptr);
       }
@@ -230,8 +232,8 @@ public:
   /// Destructor
   ~MemoryManagerTy() {
     for (auto &PtrToNode : PtrToNodeTable) {
-      assert(PtrToNode.second.Ptr && "nullptr in map table");
-      if (auto Err = deleteOnDevice(PtrToNode.second.Ptr))
+      assert(PtrToNode.second.BasePtr && "nullptr in map table");
+      if (auto Err = deleteOnDevice(PtrToNode.second.BasePtr))
         REPORT() << "Failure to delete memory: " << toString(std::move(Err));
     }
   }
