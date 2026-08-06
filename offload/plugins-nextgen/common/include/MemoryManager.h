@@ -106,13 +106,14 @@ class MemoryManagerTy {
 
   /// A structure stores the meta data of a target pointer
   struct NodeTy {
+    const size_t RequestedSize;
     /// Memory size
     const size_t Size;
     /// Target pointer
     void *Ptr;
 
     /// Constructor
-    NodeTy(size_t Size, void *Ptr) : Size(Size), Ptr(Ptr) {}
+    NodeTy(size_t Size, void *Ptr) : RequestedSize(0), Size(Size), Ptr(Ptr) {}
   };
 
   /// To make \p NodePtrTy ordered when they're put into \p std::multiset.
