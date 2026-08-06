@@ -285,22 +285,28 @@ public:
       });
       if (Itr != Last) {
         NodePtr = &Itr->get();
-
-        if (Alignment > 0) {
-          uintptr_t AlignedPointer = (uintptr_t)NodePtr->BasePtr;
-          AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
-
-          // TODO adjust PtrToNodeTable map; adjust the key to the returned pointer
-
-          NodePtr->Ptr = (void*)AlignedPointer;
-        }
-
         List.erase(Itr);
       }
     }
 
-    if (NodePtr != nullptr)
+
+
+    if (NodePtr != nullptr) {
       ODBG(OLDT_Alloc) << "Find one node " << NodePtr << " in the bucket.";
+
+      if (Alignment > 0) {
+          uintptr_t AlignedPointer = (uintptr_t)NodePtr->BasePtr;
+          AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
+
+          {
+            std::lock_guard<std::mutex> LG(MapTableLock);
+            PtrToNodeTable.erase(NodePtr->Ptr);
+            NodePtr->Ptr = (void*)AlignedPointer;
+            PtrToNodeTable.emplace(AlignedPointer, NodePtr);
+          }
+          // TODO adjust PtrToNodeTable map; adjust the key to the returned pointer
+      }
+    }
 
     // We cannot find a valid node in FreeLists. Let's allocate on device and
     // create a node for it.
