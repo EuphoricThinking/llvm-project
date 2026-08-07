@@ -110,7 +110,7 @@ class MemoryManagerTy {
     const size_t RequestedSize;
     /// Final memory size, including the alignment
     const size_t Size;
-    /// Pointer to the originally allcoated memory
+    /// Pointer to the originally allocated memory
     void* BasePtr;
     /// Target pointer, returned to the caller; after adjustments related to the memory alignment
     void *Ptr;
@@ -338,6 +338,8 @@ public:
 
     return NodePtr->Ptr;
   }
+
+  // TODO not changing free as the unnecessary nodes are inserted to the Freelist, and only when allocation happends - NodeToPtr map is updated?
 
   /// Deallocate memory pointed by \p TgtPtr
   Error free(void *TgtPtr) {
