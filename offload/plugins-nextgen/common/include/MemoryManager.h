@@ -110,13 +110,13 @@ class MemoryManagerTy {
     const size_t RequestedSize;
     /// Final memory size, including the alignment
     const size_t Size;
-    /// Pointer to the originally allocated memory
-    void* BasePtr;
     /// Target pointer, returned to the caller; after adjustments related to the memory alignment
     void *Ptr;
+    /// Pointer to the originally allocated memory
+    void* BasePtr;
 
     /// Constructor
-    NodeTy(size_t RequestedSize, size_t FinalSize, void *Ptr) : RequestedSize(RequestedSize), Size(FinalSize), Ptr(Ptr) {}
+    NodeTy(size_t RequestedSize, size_t FinalSize, void *Ptr, void* BasePtr) : RequestedSize(RequestedSize), Size(FinalSize), Ptr(Ptr), BasePtr(BasePtr) {}
   };
 
   /// To make \p NodePtrTy ordered when they're put into \p std::multiset.
@@ -229,6 +229,11 @@ class MemoryManagerTy {
           }
   }
 
+  void* alignPointer(void* PtrToBeAligned, size_t Alignment) {
+    uintptr_t AlignedPointer = (uintptr_t)PtrToBeAligned; //(uintptr_t)NodePtr->BasePtr;
+          return (void*)((AlignedPointer + Alignment - 1) & ~(Alignment - 1));
+  }
+
 
 public:
   /// Constructor. If \p Threshold is non-zero, then the default threshold will
@@ -287,7 +292,7 @@ public:
       const int B = findBucket(Size);
       FreeListTy &List = FreeLists[B];
 
-      NodeTy TempNode(RequestedSize, Size, nullptr);
+      NodeTy TempNode(RequestedSize, Size, nullptr, nullptr);
       std::lock_guard<std::mutex> LG(FreeListLocks[B]);
       auto [First, Last] = List.equal_range(TempNode);
 
@@ -306,8 +311,9 @@ public:
       ODBG(OLDT_Alloc) << "Find one node " << NodePtr << " in the bucket.";
 
       if (Alignment > 0) {
-          uintptr_t AlignedPointer = (uintptr_t)NodePtr->BasePtr;
-          AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
+        void* AlignedPointer = alignPointer(NodePtr->BasePtr, Alignment);
+          // uintptr_t AlignedPointer =  (uintptr_t)NodePtr->BasePtr;
+          // AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
 
           // {
           //   std::lock_guard<std::mutex> LG(MapTableLock);
@@ -315,7 +321,7 @@ public:
           //   NodePtr->Ptr = (void*)AlignedPointer;
           //   PtrToNodeTable.emplace(AlignedPointer, NodePtr);
           // }
-          changeKeyPtr((void*)AlignedPointer, NodePtr);
+          changeKeyPtr(AlignedPointer, NodePtr);
           // TODO adjust PtrToNodeTable map; adjust the key to the returned pointer
       }
       else {
@@ -340,10 +346,15 @@ public:
       if (TgtPtr == nullptr)
         return nullptr;
 
+      void* BasePtr = TgtPtr;
+      if (Alignment > 0) {
+        TgtPtr = alignPointer(TgtPtr, Alignment);
+      }
+
       // Create a new node and add it into the map table
       {
         std::lock_guard<std::mutex> Guard(MapTableLock);
-        auto Itr = PtrToNodeTable.emplace(TgtPtr, NodeTy(RequestedSize, Size, TgtPtr));
+        auto Itr = PtrToNodeTable.emplace(TgtPtr, NodeTy(RequestedSize, Size, TgtPtr, BasePtr));
         NodePtr = &Itr.first->second;
       }
 
