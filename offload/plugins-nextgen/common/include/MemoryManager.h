@@ -219,6 +219,17 @@ class MemoryManagerTy {
     return TgtPtr;
   }
 
+
+  void changeKeyPtr(void* FinalPtr, NodeTy* NodePtr) {
+    {
+            std::lock_guard<std::mutex> LG(MapTableLock);
+            PtrToNodeTable.erase(NodePtr->Ptr);
+            NodePtr->Ptr = FinalPtr;
+            PtrToNodeTable.emplace(FinalPtr, *NodePtr);
+          }
+  }
+
+
 public:
   /// Constructor. If \p Threshold is non-zero, then the default threshold will
   /// be overwritten by \p Threshold.
@@ -298,13 +309,19 @@ public:
           uintptr_t AlignedPointer = (uintptr_t)NodePtr->BasePtr;
           AlignedPointer = (AlignedPointer + Alignment - 1) & ~(Alignment - 1);
 
-          {
-            std::lock_guard<std::mutex> LG(MapTableLock);
-            PtrToNodeTable.erase(NodePtr->Ptr);
-            NodePtr->Ptr = (void*)AlignedPointer;
-            PtrToNodeTable.emplace(AlignedPointer, NodePtr);
-          }
+          // {
+          //   std::lock_guard<std::mutex> LG(MapTableLock);
+          //   PtrToNodeTable.erase(NodePtr->Ptr);
+          //   NodePtr->Ptr = (void*)AlignedPointer;
+          //   PtrToNodeTable.emplace(AlignedPointer, NodePtr);
+          // }
+          changeKeyPtr((void*)AlignedPointer, NodePtr);
           // TODO adjust PtrToNodeTable map; adjust the key to the returned pointer
+      }
+      else {
+        if (NodePtr->Ptr != NodePtr->BasePtr) {
+          changeKeyPtr(NodePtr->BasePtr, NodePtr);
+        }
       }
     }
 
