@@ -364,6 +364,14 @@ public:
 
     assert(NodePtr && "NodePtr should not be nullptr at this point");
 
+     if (Alignment > 0 && !isAddrAligned(Align(Alignment), NodePtr->Ptr)) {
+      if (auto FreeErr = deleteOnDevice(NodePtr->BasePtr)) {
+        return FreeErr;
+      }
+
+      return make_error<StringError>("Alocated adress is misaligned", inconvertibleErrorCode());
+    }
+
     return NodePtr->Ptr;
   }
 
