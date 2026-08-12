@@ -305,8 +305,6 @@ public:
       }
     }
 
-
-
     if (NodePtr != nullptr) {
       ODBG(OLDT_Alloc) << "Find one node " << NodePtr << " in the bucket.";
 
