@@ -336,7 +336,7 @@ public:
                        << "Allocate on device.";
       // Allocate one on device
       auto TgtPtrOrErr =
-          allocateOrFreeAndAllocateOnDevice(Size, HstPtr, 0); // Alignment);
+          allocateOrFreeAndAllocateOnDevice(Size, HstPtr, Alignment);
       if (!TgtPtrOrErr)
         return TgtPtrOrErr.takeError();
 
