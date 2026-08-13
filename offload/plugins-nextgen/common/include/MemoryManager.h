@@ -283,7 +283,7 @@ public:
         return FreeErr;
       }
 
-      return make_error<StringError>("Alocated adress is misaligned", inconvertibleErrorCode());
+      return make_error<StringError>("Allocated address is misaligned", inconvertibleErrorCode());
     }
 
       return *TgtPtrOrErr;
