@@ -278,6 +278,14 @@ public:
       ODBG(OLDT_Alloc) << "Got target pointer " << *TgtPtrOrErr
                        << ". Return directly.";
 
+           if (Alignment > 0 && !isAddrAligned(Align(Alignment), *TgtPtrOrErr)) {
+      if (auto FreeErr = deleteOnDevice(*TgtPtrOrErr)) {
+        return FreeErr;
+      }
+
+      return make_error<StringError>("Alocated adress is misaligned", inconvertibleErrorCode());
+    }
+
       return *TgtPtrOrErr;
     }
 
@@ -362,13 +370,13 @@ public:
 
     assert(NodePtr && "NodePtr should not be nullptr at this point");
 
-     if (Alignment > 0 && !isAddrAligned(Align(Alignment), NodePtr->Ptr)) {
-      if (auto FreeErr = deleteOnDevice(NodePtr->BasePtr)) {
-        return FreeErr;
-      }
+    //  if (Alignment > 0 && !isAddrAligned(Align(Alignment), NodePtr->Ptr)) {
+    //   if (auto FreeErr = deleteOnDevice(NodePtr->BasePtr)) {
+    //     return FreeErr;
+    //   }
 
-      return make_error<StringError>("Alocated adress is misaligned", inconvertibleErrorCode());
-    }
+    //   return make_error<StringError>("Alocated adress is misaligned", inconvertibleErrorCode());
+    // }
 
     return NodePtr->Ptr;
   }
