@@ -278,16 +278,18 @@ public:
       ODBG(OLDT_Alloc) << "Got target pointer " << *TgtPtrOrErr
                        << ". Return directly.";
 
-           if (Alignment > 0 && !isAddrAligned(Align(Alignment), *TgtPtrOrErr)) {
-            auto AlignErr = make_error<StringError>("Allocated address is misaligned", inconvertibleErrorCode());
-      if (auto FreeErr = deleteOnDevice(*TgtPtrOrErr)) {
-        // return FreeErr;
-        return joinErrors(std::move(FreeErr), std::move(AlignErr));
-      }
+      if (Alignment > 0 && !isAddrAligned(Align(Alignment), *TgtPtrOrErr)) {
+        auto AlignErr = make_error<StringError>(
+                 "Allocated address is misaligned", inconvertibleErrorCode());
+        if (auto FreeErr = deleteOnDevice(*TgtPtrOrErr)) {
+               // return FreeErr;
+          return joinErrors(std::move(FreeErr), std::move(AlignErr));
+        }
 
-      // return make_error<StringError>("Allocated address is misaligned", inconvertibleErrorCode());
-      return AlignErr;
-    }
+      // return make_error<StringError>("Allocated address is misaligned",
+      // inconvertibleErrorCode());
+        return AlignErr;
+      }
 
       return *TgtPtrOrErr;
     }
