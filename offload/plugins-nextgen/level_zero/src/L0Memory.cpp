@@ -506,7 +506,6 @@ Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
                                                bool UserAlloc, bool DevMalloc,
                                                uint32_t MemAdvice,
                                                AllocOptionTy AllocOpt) {
-  size_t Align = 0;
   assert((Kind == TARGET_ALLOC_DEVICE || Kind == TARGET_ALLOC_HOST ||
           Kind == TARGET_ALLOC_SHARED) &&
          "Unknown memory kind while allocating target memory");
@@ -531,8 +530,8 @@ Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
     // Pool is enabled for the allocation kind, and we do not use any memory
     // advice. We should avoid using pool if there is any meaningful memory
     // advice not to affect sibling allocation in the same block.
-    if (Align > 0)
-      AllocSize += (Align - 1);
+    // if (Align > 0)
+    //   AllocSize += (Align - 1);
     size_t PoolAllocSize = 0;
     MemPoolTy *Pool = nullptr;
 
@@ -549,8 +548,8 @@ Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
     AllocBase = *PtrOrErr;
     if (AllocBase) {
       uintptr_t Base = (uintptr_t)AllocBase;
-      if (Align > 0)
-        Base = (Base + Align) & ~(Align - 1);
+      // if (Align > 0)
+      //   Base = (Base + Align) & ~(Align - 1);
       Mem = (void *)(Base + Offset);
       AllocInfo.add(Mem, AllocBase, Size, PoolAllocSize, Kind, true, UserAlloc);
       log(Size, PoolAllocSize, Kind, true /* Pool */);
