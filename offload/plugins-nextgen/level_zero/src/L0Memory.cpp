@@ -501,7 +501,7 @@ Error MemAllocatorTy::deinit() {
 }
 
 /// Allocate memory with the specified information.
-Expected<void *> MemAllocatorTy::allocFromPool(size_t Size, size_t Align,
+Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
                                                int32_t Kind, intptr_t Offset,
                                                bool UserAlloc, bool DevMalloc,
                                                uint32_t MemAdvice,

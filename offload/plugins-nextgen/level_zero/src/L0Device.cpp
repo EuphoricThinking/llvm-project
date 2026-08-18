@@ -326,7 +326,7 @@ Error L0DeviceTy::queryAsyncImpl(__tgt_async_info &AsyncInfo, bool ReleaseQueue,
 
 Expected<void *> L0DeviceTy::allocate(size_t Size, void *HstPtr,
                                       TargetAllocTy Kind, size_t Alignment) {
-  return dataAlloc(Size, Alignment, Kind,
+  return dataAlloc(Size, Kind,
                    /*Offset=*/0, /*UserAlloc=*/HstPtr == nullptr,
                    /*DevMalloc=*/false);
 }
@@ -702,7 +702,7 @@ Error L0DeviceTy::dataPrefetchImpl(size_t Count, const void **Mems,
   return Plugin::success();
 }
 
-Expected<void *> L0DeviceTy::dataAlloc(size_t Size, size_t Align, int32_t Kind,
+Expected<void *> L0DeviceTy::dataAlloc(size_t Size, int32_t Kind,
                                        intptr_t Offset, bool UserAlloc,
                                        bool DevMalloc, uint32_t MemAdvice,
                                        AllocOptionTy AllocOpt) {
@@ -721,7 +721,7 @@ Expected<void *> L0DeviceTy::dataAlloc(size_t Size, size_t Align, int32_t Kind,
       Kind = getAllocKind();
   }
   auto &Allocator = getMemAllocator(Kind);
-  return Allocator.alloc(Size, Align, Kind, Offset, UserAlloc, DevMalloc,
+  return Allocator.alloc(Size, Kind, Offset, UserAlloc, DevMalloc,
                          MemAdvice, AllocOpt);
 }
 

@@ -476,7 +476,7 @@ public:
 
   /// Data alloc.
   Expected<void *> dataAlloc(
-      size_t Size, size_t Align, int32_t Kind, intptr_t Offset, bool UserAlloc,
+      size_t Size, int32_t Kind, intptr_t Offset, bool UserAlloc,
       bool DevMalloc = false,
       uint32_t MemAdvice = std::numeric_limits<decltype(MemAdvice)>::max(),
       AllocOptionTy AllocOpt = AllocOptionTy::ALLOC_OPT_NONE);

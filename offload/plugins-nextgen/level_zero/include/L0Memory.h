@@ -357,7 +357,7 @@ class MemAllocatorTy {
   Error enqueueMemSet(void *Dst, int8_t Value, size_t Size);
 
   /// Allocate memory with the specified information from a memory pool.
-  Expected<void *> allocFromPool(size_t Size, size_t Align, int32_t Kind,
+  Expected<void *> allocFromPool(size_t Size, int32_t Kind,
                                  intptr_t Offset, bool UserAlloc,
                                  bool DevMalloc, uint32_t MemAdvice,
                                  AllocOptionTy AllocOpt);
@@ -385,10 +385,10 @@ public:
   Error deinit();
 
   /// Allocate memory with the specified information from a memory pool.
-  Expected<void *> alloc(size_t Size, size_t Align, int32_t Kind,
+  Expected<void *> alloc(size_t Size, int32_t Kind,
                          intptr_t Offset, bool UserAlloc, bool DevMalloc,
                          uint32_t MemAdvice, AllocOptionTy AllocOpt) {
-    return allocFromPool(Size, Align, Kind, Offset, UserAlloc, DevMalloc,
+    return allocFromPool(Size, Kind, Offset, UserAlloc, DevMalloc,
                          MemAdvice, AllocOpt);
   }
 
