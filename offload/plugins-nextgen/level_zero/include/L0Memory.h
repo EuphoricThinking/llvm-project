@@ -71,7 +71,7 @@ struct MemAllocInfoTy {
   /// Allocation size known to users/libomptarget.
   size_t ReqSize = 0;
   /// Allocation size known to the plugin (can be larger than ReqSize).
-  size_t AllocSize = 0;
+  // size_t AllocSize = 0;
   /// TARGET_ALLOC kind.
   int32_t Kind = TARGET_ALLOC_DEFAULT;
   /// Is the allocation from a pool?
@@ -83,7 +83,7 @@ struct MemAllocInfoTy {
 
   MemAllocInfoTy(void *Base, size_t ReqSize, size_t AllocSize, int32_t Kind,
                  bool InPool, bool ImplicitArg)
-      : Base(Base), ReqSize(ReqSize), AllocSize(AllocSize), Kind(Kind),
+      : Base(Base), ReqSize(ReqSize), /* AllocSize(AllocSize), */ Kind(Kind),
         InPool(InPool), ImplicitArg(ImplicitArg) {}
 };
 

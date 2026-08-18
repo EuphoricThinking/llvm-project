@@ -618,7 +618,7 @@ Error MemAllocatorTy::deallocLocked(void *Ptr) {
                          "Cannot find base address of " DPxMOD "\n",
                          DPxPTR(Ptr));
   }
-  log(/*NoReqSize*/ 0, Info.AllocSize, Info.Kind);
+  log(/*NoReqSize*/ 0, Info.Kind);
 
   if (auto Err = deallocFromL0(Info.Base))
     return Err;
