@@ -315,16 +315,16 @@ class MemAllocatorTy {
   Error deallocLocked(void *Ptr);
 
   /// Allocate memory from L0 GPU RT.
-  Expected<void *> allocFromL0(size_t Size, size_t Align, int32_t Kind);
+  Expected<void *> allocFromL0(size_t Size, int32_t Kind);
   /// Deallocate memory from L0 GPU RT.
   Error deallocFromL0(void *Ptr);
 
   /// We use over-allocation workaround to support target pointer with
   /// offset, and positive "ActiveSize" is specified in such cases to
   /// correct debug logging.
-  Expected<void *> allocFromL0AndLog(size_t Size, size_t Align, int32_t Kind,
+  Expected<void *> allocFromL0AndLog(size_t Size, int32_t Kind,
                                      size_t ActiveSize = 0) {
-    auto MemOrErr = allocFromL0(Size, Align, Kind);
+    auto MemOrErr = allocFromL0(Size, Kind);
     if (!MemOrErr)
       return MemOrErr;
     size_t LoggedSize = ActiveSize ? ActiveSize : Size;

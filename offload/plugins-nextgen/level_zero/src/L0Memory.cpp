@@ -81,7 +81,7 @@ Error MemAllocatorTy::MemPoolTy::init(int32_t Kind, MemAllocatorTy *AllocatorIn,
 
   // Check page size used for this allocation kind to decide minimum.
   // allocation size when allocating from L0.
-  auto MemOrErr = Allocator->allocFromL0(8, 0, AllocKind);
+  auto MemOrErr = Allocator->allocFromL0(8, AllocKind);
   if (!MemOrErr)
     return MemOrErr.takeError();
   void *Mem = *MemOrErr;
@@ -293,7 +293,7 @@ Expected<void *> MemAllocatorTy::MemPoolTy::alloc(size_t Size,
     // Bucket is empty or all blocks in the bucket are full.
     const auto ChunkSize = BucketParams[BucketId].first;
     const auto BlockSize = BucketParams[BucketId].second;
-    auto BaseOrErr = Allocator->allocFromL0AndLog(BlockSize, 0, AllocKind);
+    auto BaseOrErr = Allocator->allocFromL0AndLog(BlockSize, AllocKind);
     if (!BaseOrErr)
       return BaseOrErr.takeError();
 
@@ -506,6 +506,7 @@ Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
                                                bool UserAlloc, bool DevMalloc,
                                                uint32_t MemAdvice,
                                                AllocOptionTy AllocOpt) {
+  size_t Align = 0;
   assert((Kind == TARGET_ALLOC_DEVICE || Kind == TARGET_ALLOC_HOST ||
           Kind == TARGET_ALLOC_SHARED) &&
          "Unknown memory kind while allocating target memory");
@@ -565,7 +566,7 @@ Expected<void *> MemAllocatorTy::allocFromPool(size_t Size,
   }
 
   auto AllocBaseOrErr =
-      allocFromL0AndLog(AllocSize, Align, Kind, /*ActiveSize=*/Size);
+      allocFromL0AndLog(AllocSize, Kind, /*ActiveSize=*/Size);
   if (!AllocBaseOrErr)
     return AllocBaseOrErr.takeError();
   AllocBase = *AllocBaseOrErr;
@@ -636,7 +637,7 @@ Error MemAllocatorTy::enqueueMemCopy(void *Dst, const void *Src, size_t Size) {
   return Device->enqueueMemCopyAndSync(Dst, Src, Size);
 }
 
-Expected<void *> MemAllocatorTy::allocFromL0(size_t Size, size_t Align,
+Expected<void *> MemAllocatorTy::allocFromL0(size_t Size,
                                              int32_t Kind) {
   void *Mem = nullptr;
   ze_device_mem_alloc_desc_t DeviceDesc{ZE_STRUCTURE_TYPE_DEVICE_MEM_ALLOC_DESC,
@@ -659,18 +660,18 @@ Expected<void *> MemAllocatorTy::allocFromL0(size_t Size, size_t Align,
   switch (Kind) {
   case TARGET_ALLOC_DEVICE:
     MakeResident = true;
-    CALL_ZE_RET_ERROR(zeMemAllocDevice, zeContext, &DeviceDesc, Size, Align,
+    CALL_ZE_RET_ERROR(zeMemAllocDevice, zeContext, &DeviceDesc, Size, /*Align*/ 0,
                       zeDevice, &Mem);
     ODBG(OLDT_Alloc) << "Allocated " << Size << " bytes of device memory "
                      << Mem;
     break;
   case TARGET_ALLOC_HOST:
-    CALL_ZE_RET_ERROR(zeMemAllocHost, zeContext, &HostDesc, Size, Align, &Mem);
+    CALL_ZE_RET_ERROR(zeMemAllocHost, zeContext, &HostDesc, Size, /*Align*/ 0, &Mem);
     ODBG(OLDT_Alloc) << "Allocated " << Size << " bytes of host memory " << Mem;
     break;
   case TARGET_ALLOC_SHARED:
     CALL_ZE_RET_ERROR(zeMemAllocShared, zeContext, &DeviceDesc, &HostDesc, Size,
-                      Align, zeDevice, &Mem);
+                      /*Align*/ 0, zeDevice, &Mem);
     ODBG(OLDT_Alloc) << "Allocated " << Size << " bytes of shared memory "
                      << Mem;
     break;
