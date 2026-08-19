@@ -618,12 +618,12 @@ Error MemAllocatorTy::deallocLocked(void *Ptr) {
                          "Cannot find base address of " DPxMOD "\n",
                          DPxPTR(Ptr));
   }
-  log(/*NoReqSize*/ 0, Info.Kind);
+  log(/*NoReqSize*/ 0, Info.ReqSize, Info.Kind);
 
   if (auto Err = deallocFromL0(Info.Base))
     return Err;
   ODBG(OLDT_Alloc) << "Deleted device memory " << Ptr << " (Base: " << Info.Base
-                   << ", Size: " << Info.AllocSize << ")";
+                   << ", Size: " << Info.ReqSize << ")";
 
   return Plugin::success();
 }
