@@ -482,8 +482,8 @@ Error MemAllocatorTy::deinit() {
          << llvm::format("%12s", "Pool") << "\n";
       Os << "-- Requested: " << llvm::format("%12zu", Stat.Requested[0]) << ", "
          << llvm::format("%12zu", Stat.Requested[1]) << "\n";
-      Os << "-- Allocated: " << llvm::format("%12zu", Stat.Allocated[0]) << ", "
-         << llvm::format("%12zu", Stat.Allocated[1]) << "\n";
+      // Os << "-- Allocated: " << llvm::format("%12zu", Stat.Allocated[0]) << ", "
+      //    << llvm::format("%12zu", Stat.Allocated[1]) << "\n";
       Os << "-- Freed    : " << llvm::format("%12zu", Stat.Freed[0]) << ", "
          << llvm::format("%12zu", Stat.Freed[1]) << "\n";
       Os << "-- InUse    : " << llvm::format("%12zu", Stat.InUse[0]) << ", "

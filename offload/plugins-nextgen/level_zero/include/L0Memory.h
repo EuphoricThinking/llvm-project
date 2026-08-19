@@ -95,7 +95,7 @@ class MemAllocatorTy {
   /// and GPU RT allocation.
   struct MemStatTy {
     size_t Requested[2] = {0, 0}; // Requested bytes.
-    size_t Allocated[2] = {0, 0}; // Allocated bytes.
+    // size_t Allocated[2] = {0, 0}; // Allocated bytes.
     size_t Freed[2] = {0, 0};     // Freed bytes.
     size_t InUse[2] = {0, 0};     // Current memory in use.
     size_t PeakUse[2] = {0, 0};   // Peak bytes used.
@@ -333,7 +333,7 @@ class MemAllocatorTy {
   }
 
   /// Log memory allocation/deallocation.
-  void log(size_t ReqSize, size_t Size, int32_t Kind, bool Pool = false) {
+  void log(size_t ReqSize, size_t DeallocSize, int32_t Kind, bool Pool = false) {
     if (Kind < 0 || Kind >= MaxMemKind)
       return; // Stat is disabled.
 
@@ -341,12 +341,12 @@ class MemAllocatorTy {
     int32_t I = Pool ? 1 : 0;
     if (ReqSize > 0) {
       ST.Requested[I] += ReqSize;
-      ST.Allocated[I] += Size;
-      ST.InUse[I] += Size;
+      // ST.Allocated[I] += Size;
+      ST.InUse[I] += ReqSize; //Size;
       ST.NumAllocs[I]++;
     } else {
-      ST.Freed[I] += Size;
-      ST.InUse[I] -= Size;
+      ST.Freed[I] += DeallocSize; //Size;
+      ST.InUse[I] -= DeallocSize; //Size;
     }
     ST.PeakUse[I] = (std::max)(ST.PeakUse[I], ST.InUse[I]);
   }
